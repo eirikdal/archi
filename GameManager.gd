@@ -10,7 +10,7 @@ const HERO_SCENES := {
 
 var active_hero: Node2D                   # current hero instance
 var swap_cooldown := 0.0                  # seconds left before next swap
-const SWAP_DELAY := 3.0
+const SWAP_DELAY := 3.0   a 
 
 func _process(delta: float) -> void:
 	if swap_cooldown > 0.0:

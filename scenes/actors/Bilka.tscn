@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxdwajxq7kquy"]
+
+[ext_resource type="PackedScene" uid="uid://dpsk8dfytpkjm" path="res://scenes/Player.tscn" id="1_li4m5"]
+[ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="2_qvsc1"]
+
+[node name="Player" instance=ExtResource("1_li4m5")]
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+script = ExtResource("2_qvsc1")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." index="2"]

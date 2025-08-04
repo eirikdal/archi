@@ -16,11 +16,15 @@ var _is_sliding := false
 var _coyote := 0.0                       # jump forgiveness
 
 var _weapon: Weapon
+@onready var anim := $AnimatedSprite2D
+
+#const GameManager = preload("res://GameManager.gd")
 
 func _ready() -> void:
 	if owner == get_tree().current_scene:        # not a pooled dummy
-		GameManager.active_hero = self
-	_weapon = $WeaponHolder.get_child(0)         # first weapon scene
+		#GameManager.active_hero = self
+		anim.animation = "breathe_idle"
+#	_weapon = $WeaponHolder.get_child(0)         # first weapon scene
 
 func _physics_process(delta: float) -> void:
 	apply_gravity(delta)
@@ -38,7 +42,7 @@ func handle_input(delta):
 	var dir := Input.get_axis("move_left", "move_right")
 	if not _is_sliding:
 		velocity.x = dir * move_speed
-		if dir != 0: $Sprite2D.scale.x = sign(dir)
+		#if dir != 0: $AnimatedSprite2D.scale.x = sign(dir)
 	# Jump
 	if Input.is_action_just_pressed("jump") and (_coyote > 0 or is_on_floor()):
 		velocity.y = jump_impulse
@@ -53,9 +57,9 @@ func handle_input(delta):
 		_weapon.try_fire()
 
 	# Hero swap keys (numeric 1-3 or LB/RB etc.)
-	if Input.is_action_just_pressed("hero_1"): GameManager.swap_to("SOVA")
-	if Input.is_action_just_pressed("hero_2"): GameManager.swap_to("RYS")
-	if Input.is_action_just_pressed("hero_3"): GameManager.swap_to("BILKA")
+	#if Input.is_action_just_pressed("hero_1"): GameManager.swap_to("SOVA")
+	#if Input.is_action_just_pressed("hero_2"): GameManager.swap_to("RYS")
+	#if Input.is_action_just_pressed("hero_3"): GameManager.swap_to("BILKA")
 
 func start_slide():
 	_is_sliding = true

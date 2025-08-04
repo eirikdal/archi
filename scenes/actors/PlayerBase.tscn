@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://c1ii6ed148s2d"]
+[gd_scene load_steps=2 format=3 uid="uid://c1ii6ed148s2d"]
+
+[ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="1_ri0uv"]
 
 [node name="PlayerBaseInherited" type="Node2D"]
+script = ExtResource("1_ri0uv")
