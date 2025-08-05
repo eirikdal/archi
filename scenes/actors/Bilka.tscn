@@ -7,5 +7,3 @@
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 script = ExtResource("2_qvsc1")
-
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." index="2"]

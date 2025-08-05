@@ -10,15 +10,15 @@ func _physics_process(delta):
 	move_and_slide()
 	if is_on_wall(): patrol_speed = -patrol_speed; $Sprite2D.scale.x = sign(patrol_speed)
 
-func apply_damage(dmg:int):
-	hp -= dmg
-	modulate = Color.WHITE          # flash
-	await get_tree().create_timer(0.05).timeout
-	modulate = Color(1,1,1)
-	if hp <= 0: explode()
+#func apply_damage(dmg:int):
+#	hp -= dmg
+#	modulate = Color.WHITE          # flash
+#	await get_tree().create_timer(0.05).timeout
+#	modulate = Color(1,1,1)
+#	if hp <= 0: explode()
 
-func explode():
-	var boom := preload("res://scenes/fx/SmallExplosion.tscn").instantiate()
-	boom.global_position = global_position
-	get_tree().current_scene.add_child(boom)
-	queue_free()
+#func explode():
+	#var boom := preload("res://scenes/fx/SmallExplosion.tscn").instantiate()
+	#boom.global_position = global_position
+	#get_tree().current_scene.add_child(boom)
+	#queue_free()

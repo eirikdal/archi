@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://myebsdahcp3j"]
+[gd_scene load_steps=9 format=3 uid="uid://myebsdahcp3j"]
 
 [ext_resource type="PackedScene" uid="uid://dpsk8dfytpkjm" path="res://scenes/Player.tscn" id="1_ibkli"]
 [ext_resource type="Texture2D" uid="uid://cg0gh152jr1sd" path="res://parallax/parallax-mountain-bg.png" id="2_s0nni"]
@@ -8,6 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://33fxhckdjrn3" path="res://parallax/parallax-mountain-trees.png" id="5_400sg"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ibkli"]
+
+[sub_resource type="ExternalTexture" id="ExternalTexture_aug50"]
+size = Vector2(15000, 20)
 
 [node name="Game" type="Node2D"]
 
@@ -25,6 +28,10 @@ position = Vector2(0, 50)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 shape = SubResource("WorldBoundaryShape2D_ibkli")
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
+texture = SubResource("ExternalTexture_aug50")
+offset = Vector2(0, 13)
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
