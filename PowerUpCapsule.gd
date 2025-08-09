@@ -9,13 +9,13 @@ const FUSION_TABLE := {
 	# Add the full matrix here ⇧
 }
 
-func _on_body_entered(player: Player):
+func _on_body_entered(player: PlayerBase):
 	var current := player._weapon.name
 	if current == power_type:
 		player._weapon.upgrade_tier()
 	else:
 		var key := "%s:%s" % [current, power_type]
-		var fusion := FUSION_TABLE.get(key, null)
+		var fusion:String = FUSION_TABLE.get(key, null)
 		if fusion:
 			player.swap_weapon(fusion)
 		else:
