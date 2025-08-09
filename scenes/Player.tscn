@@ -1,41 +1,54 @@
-[gd_scene load_steps=9 format=3 uid="uid://dpsk8dfytpkjm"]
+[gd_scene load_steps=11 format=3 uid="uid://dpsk8dfytpkjm"]
 
-[ext_resource type="Texture2D" uid="uid://cewpoii6dpujc" path="res://art/placeholders/hero_idle_breathing_64x96.png" id="1_p0vlq"]
 [ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="1_v6fml"]
+[ext_resource type="Texture2D" uid="uid://flxge55fvjv2" path="res://art/placeholders/sova_sheet_breathing.png" id="2_3li8b"]
+[ext_resource type="Texture2D" uid="uid://dnmxvstdx7fbv" path="res://art/placeholders/sova_sheet_running.png" id="3_3li8b"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_v6fml"]
-atlas = ExtResource("1_p0vlq")
-region = Rect2(0, 0, 64, 96)
+[sub_resource type="AtlasTexture" id="AtlasTexture_bruh7"]
+atlas = ExtResource("2_3li8b")
+region = Rect2(99, 0, 479, 1024)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_3li8b"]
-atlas = ExtResource("1_p0vlq")
-region = Rect2(64, 0, 64, 96)
+[sub_resource type="AtlasTexture" id="AtlasTexture_6eyey"]
+atlas = ExtResource("2_3li8b")
+region = Rect2(578, 0, 479, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mdl7e"]
-atlas = ExtResource("1_p0vlq")
-region = Rect2(128, 0, 64, 96)
+atlas = ExtResource("3_3li8b")
+region = Rect2(24, 0, 504, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qu4a1"]
-atlas = ExtResource("1_p0vlq")
-region = Rect2(192, 0, 64, 96)
+atlas = ExtResource("3_3li8b")
+region = Rect2(528, 0, 504, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_70d11"]
+atlas = ExtResource("3_3li8b")
+region = Rect2(1032, 0, 504, 1024)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_onrkg"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_v6fml")
+"texture": SubResource("AtlasTexture_bruh7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_3li8b")
+"texture": SubResource("AtlasTexture_6eyey")
+}],
+"loop": true,
+"name": &"breathe_idle",
+"speed": 5.0
 }, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mdl7e")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qu4a1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_70d11")
 }],
 "loop": true,
-"name": &"breathe_idle",
+"name": &"running",
 "speed": 4.0
 }]
 
@@ -46,12 +59,12 @@ radius = 7.28011
 script = ExtResource("1_v6fml")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(-1, 12)
-scale = Vector2(0.234375, 0.244792)
+position = Vector2(0, 9)
+scale = Vector2(0.03, 0.03)
 sprite_frames = SubResource("SpriteFrames_onrkg")
-animation = &"breathe_idle"
-autoplay = "breathe_idle"
-frame_progress = 0.057739
+animation = &"running"
+autoplay = "running"
+flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, 14)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://myebsdahcp3j"]
+[gd_scene load_steps=10 format=3 uid="uid://myebsdahcp3j"]
 
 [ext_resource type="PackedScene" uid="uid://dpsk8dfytpkjm" path="res://scenes/Player.tscn" id="1_ibkli"]
 [ext_resource type="Texture2D" uid="uid://cg0gh152jr1sd" path="res://parallax/parallax-mountain-bg.png" id="2_s0nni"]
@@ -9,8 +9,15 @@
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ibkli"]
 
-[sub_resource type="ExternalTexture" id="ExternalTexture_aug50"]
-size = Vector2(15000, 20)
+[sub_resource type="Gradient" id="Gradient_aug50"]
+offsets = PackedFloat32Array(0, 0.90035, 0.972028, 0.984266, 0.998252, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.951049, 0.951049, 0.951049, 1, 0.961983, 0.961983, 0.961983, 1, 0.959583, 0.959583, 0.959583, 1, 0.970801, 0.970801, 0.970801, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_kiw3p"]
+gradient = SubResource("Gradient_aug50")
+width = 2000
+height = 20
+fill_to = Vector2(0.160377, 0)
 
 [node name="Game" type="Node2D"]
 
@@ -30,8 +37,9 @@ position = Vector2(0, 50)
 shape = SubResource("WorldBoundaryShape2D_ibkli")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
-texture = SubResource("ExternalTexture_aug50")
-offset = Vector2(0, 13)
+top_level = true
+texture = SubResource("GradientTexture2D_kiw3p")
+offset = Vector2(0, 63)
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 
