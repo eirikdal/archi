@@ -5,7 +5,7 @@ name: CI
 env:
   GODOT_VERSION: 4.4.1
   EXPORT_NAME: sova
-  PROJECT_PATH: sova
+  PROJECT_PATH: .
 
 # Controls when the workflow will run
 on:
