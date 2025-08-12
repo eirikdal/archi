@@ -4,7 +4,7 @@ class_name PlayerBase
 
 ## -- Tweakables -------------------------------------------------------------
 @export var move_speed: float = 200.0
-@export var jump_impulse: float = -380.0
+@export var jump_impulse: float = -360.0
 @export var gravity: float = 1300.0
 @export var slide_speed: float = 420.0
 @export var slide_time: float = 0.30
@@ -21,13 +21,12 @@ var _weapon: Weapon
 
 func _ready() -> void:
 	if owner == get_tree().current_scene:   # not a pooled dummy
-		anim.play("breathe_idle")
-		# _weapon = $WeaponHolder.get_child(0) as Weapon
+		_play("breathe_idle")               # default
 
 func _physics_process(delta: float) -> void:
 	apply_gravity(delta)
 	handle_input(delta)
-	update_animation()                      # flip + pick anim based on velocity
+	update_animation()
 	move_and_slide()
 
 func apply_gravity(delta: float) -> void:
@@ -37,12 +36,10 @@ func apply_gravity(delta: float) -> void:
 		_coyote = 0.12                      # reset coyote time
 
 func handle_input(delta: float) -> void:
-	# Horizontal
 	var dir := Input.get_axis("move_left", "move_right")
 
 	if not _is_sliding:
 		velocity.x = dir * move_speed
-		# Face the direction of input when there is input
 		if dir != 0:
 			anim.flip_h = dir < 0
 
@@ -52,7 +49,7 @@ func handle_input(delta: float) -> void:
 	if _coyote > 0.0:
 		_coyote -= delta
 
-	# Wing-Slide
+	# Slide
 	if Input.is_action_just_pressed("slide") and not _is_sliding:
 		start_slide()
 
@@ -60,18 +57,23 @@ func handle_input(delta: float) -> void:
 	if Input.is_action_pressed("shoot") and _weapon:
 		_weapon.try_fire()
 
-	# Hero swap keys (numeric 1-3 or LB/RB etc.)
-	# if Input.is_action_just_pressed("hero_1"): GameManager.swap_to("SOVA")
-	# if Input.is_action_just_pressed("hero_2"): GameManager.swap_to("RYS")
-	# if Input.is_action_just_pressed("hero_3"): GameManager.swap_to("BILKA")
-
 func update_animation() -> void:
-	# Choose between idle and running using horizontal speed
-	var moving := absf(velocity.x) > RUN_THRESHOLD and is_on_floor() and not _is_sliding
+	# Airborne takes priority (use "jumping", fall back to "running" if missing)
+	var airborne := not is_on_floor()
+	if airborne and not _is_sliding:
+		_play("jumping", "running")
+		return
+
+	# Sliding could have its own anim in the future; for now just use running
+	if _is_sliding:
+		_play("running")
+		return
+
+	# Grounded: choose running vs idle
+	var moving := absf(velocity.x) > RUN_THRESHOLD
 	var target := "running" if moving else "breathe_idle"
 	if anim.animation != target or not anim.is_playing():
-		anim.play(target)
-
+		_play(target)
 
 func start_slide() -> void:
 	_is_sliding = true
@@ -82,3 +84,12 @@ func start_slide() -> void:
 	await get_tree().create_timer(slide_time).timeout
 	$CollisionShape2D.disabled = false
 	_is_sliding = false
+
+# --- helpers ---------------------------------------------------------------
+
+func _play(name: String, fallback: String = "") -> void:
+	var target := name
+	if anim.sprite_frames and not anim.sprite_frames.has_animation(name):
+		target = fallback if (fallback != "" and anim.sprite_frames.has_animation(fallback)) else name
+	if anim.animation != target or not anim.is_playing():
+		anim.play(target)

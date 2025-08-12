@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dpsk8dfytpkjm"]
+[gd_scene load_steps=10 format=3 uid="uid://dpsk8dfytpkjm"]
 
 [ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="1_v6fml"]
 [ext_resource type="Texture2D" uid="uid://flxge55fvjv2" path="res://art/placeholders/sova_sheet_breathing.png" id="2_3li8b"]
@@ -14,15 +14,11 @@ region = Rect2(578, 0, 479, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3li8b"]
 atlas = ExtResource("3_3li8b")
-region = Rect2(0, 1024, 1024, 1024)
+region = Rect2(0, 0, 1024, 874)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mdl7e"]
 atlas = ExtResource("3_3li8b")
-region = Rect2(0, 0, 1024, 1024)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qu4a1"]
-atlas = ExtResource("3_3li8b")
-region = Rect2(1024, 0, 1024, 1024)
+region = Rect2(1024, 0, 1024, 874)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_onrkg"]
 animations = [{
@@ -43,9 +39,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mdl7e")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qu4a1")
 }],
 "loop": true,
 "name": &"running",
@@ -59,14 +52,14 @@ radius = 7.28011
 script = ExtResource("1_v6fml")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, 9)
-scale = Vector2(0.03, 0.03)
+position = Vector2(0, -17)
+scale = Vector2(0.0345312, 0.0335547)
 sprite_frames = SubResource("SpriteFrames_onrkg")
 animation = &"running"
-autoplay = "running"
-frame_progress = 0.869746
+autoplay = "breathe_idle"
+frame_progress = 0.691246
 flip_h = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1, 14)
+position = Vector2(0, -7)
 shape = SubResource("CircleShape2D_i3pqv")
