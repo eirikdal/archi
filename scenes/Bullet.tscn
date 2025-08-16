@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://cy53drbxer67q"]
+
+[ext_resource type="Script" uid="uid://oix37xsutcgx" path="res://Bullet.gd" id="1_hf8mt"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hf8mt"]
+
+[sub_resource type="Gradient" id="Gradient_hf8mt"]
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_p1sfj"]
+gradient = SubResource("Gradient_hf8mt")
+width = 2
+
+[node name="Bullet" type="CharacterBody2D"]
+script = ExtResource("1_hf8mt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_hf8mt")
+
+[node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
+texture = SubResource("GradientTexture1D_p1sfj")
