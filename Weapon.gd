@@ -35,7 +35,8 @@ func try_fire() -> void:
 	get_tree().current_scene.add_child(bullet)
 
 	# Fire direction from muzzle's right vector (respects flips/rotation)
-	var basis_x := -(_muzzle.global_transform.x if _muzzle else global_transform.x).normalized()
+	var dir := 1
+	var basis_x := dir * (_muzzle.global_transform.x if _muzzle else global_transform.x).normalized()
 	var spawn_pos := (_muzzle.global_position if _muzzle else global_position) + basis_x * spawn_forward_px
 
 	bullet.global_position = spawn_pos

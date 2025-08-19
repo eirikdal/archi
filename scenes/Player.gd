@@ -23,7 +23,8 @@ const RUN_THRESHOLD := 5.0                # min speed to count as "moving"
 @onready var _weapon: Weapon = $GFX/WeaponHolder/Weapon
 
 func _ready() -> void:
-	if owner == get_tree().current_scene:   # not a pooled dummy
+	if owner == get_tree().current_scene:
+		gfx.scale.x = 1.0     # face right at start   # not a pooled dummy
 		_play("breathe_idle")               # default
 	if _weapon:
 		_weapon.set_shooter(self)	
@@ -47,7 +48,7 @@ func handle_input(delta: float) -> void:
 	if not _is_sliding:
 		velocity.x = dir * move_speed
 		if dir != 0:
-			gfx.scale.x = 1.0 if dir < 0 else -1.0
+			gfx.scale.x = -1.0 if dir < 0 else 1.0
 
 	# Jump
 	if Input.is_action_just_pressed("jump") and (_coyote > 0.0 or is_on_floor()):
@@ -61,7 +62,6 @@ func handle_input(delta: float) -> void:
 
 	# Shooting: fire as long as held, but trigger the shooting animation only on press
 	if Input.is_action_pressed("shoot") and _weapon:
-		var facing_sign := -1.0 if anim.flip_h else 1.0
 		_weapon.try_fire()
 	if Input.is_action_just_pressed("shoot"):
 		_start_shoot_anim()
@@ -93,14 +93,13 @@ func update_animation() -> void:
 
 func start_slide() -> void:
 	_is_sliding = true
-	var facing_sign := -1.0 if anim.flip_h else 1.0
+	var facing_sign := -1.0 if gfx.scale.x < 0.0 else 1.0
 	velocity.x = slide_speed * facing_sign
 
 	$CollisionShape2D.disabled = true
 	await get_tree().create_timer(slide_time).timeout
 	$CollisionShape2D.disabled = false
 	_is_sliding = false
-
 # --- helpers ---------------------------------------------------------------
 
 func _start_shoot_anim() -> void:

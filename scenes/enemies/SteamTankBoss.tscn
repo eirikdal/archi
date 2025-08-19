@@ -1,0 +1,79 @@
+[gd_scene load_steps=10 format=3 uid="uid://clxmbgxj4wii"]
+
+[ext_resource type="Texture2D" uid="uid://tokrewwjdeit" path="res://art/placeholders/tank.png" id="1_adosm"]
+[ext_resource type="Script" uid="uid://cw6agiqq7j3hl" path="res://scenes/enemies/SteamTankBoss.gd" id="1_ne8ig"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ne8ig"]
+atlas = ExtResource("1_adosm")
+region = Rect2(512, 28, 512, 498)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v8kde"]
+atlas = ExtResource("1_adosm")
+region = Rect2(512, 526, 512, 498)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i8xmp"]
+atlas = ExtResource("1_adosm")
+region = Rect2(0, 28, 512, 498)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2b57x"]
+atlas = ExtResource("1_adosm")
+region = Rect2(0, 526, 512, 498)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_khg3p"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ne8ig")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v8kde")
+}],
+"loop": true,
+"name": &"fire",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i8xmp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2b57x")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ne8ig"]
+radius = 100.02
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_v8kde"]
+radius = 99.1262
+
+[node name="SteamTankBoss" type="CharacterBody2D"]
+script = ExtResource("1_ne8ig")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(33, -14)
+sprite_frames = SubResource("SpriteFrames_khg3p")
+animation = &"idle"
+flip_h = true
+
+[node name="HitBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+shape = SubResource("CircleShape2D_ne8ig")
+
+[node name="HurtBox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+position = Vector2(-3, 0)
+shape = SubResource("CircleShape2D_v8kde")
+
+[node name="Muzzle" type="Marker2D" parent="."]
+
+[node name="FireTimer" type="Timer" parent="."]
+
+[node name="SfxFire" type="AudioStreamPlayer2D" parent="."]
+
+[node name="SfxHurt" type="AudioStreamPlayer2D" parent="."]

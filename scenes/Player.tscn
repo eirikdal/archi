@@ -6,17 +6,17 @@
 [ext_resource type="Texture2D" uid="uid://boaweg3glnyxo" path="res://art/placeholders/sova shooting.png" id="4_mdl7e"]
 [ext_resource type="PackedScene" uid="uid://ct06hvtpp4n1r" path="res://scenes/Weapon.tscn" id="5_qu4a1"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_mdl7e"]
-atlas = ExtResource("2_3li8b")
-region = Rect2(0, 0, 800, 1024)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_qu4a1"]
 atlas = ExtResource("2_3li8b")
-region = Rect2(800, 0, 800, 1024)
+region = Rect2(800, 1024, 800, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_70d11"]
 atlas = ExtResource("2_3li8b")
-region = Rect2(0, 1024, 800, 1024)
+region = Rect2(800, 0, 800, 1024)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lkdrv"]
+atlas = ExtResource("2_3li8b")
+region = Rect2(0, 0, 800, 1024)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cw2d6"]
 atlas = ExtResource("3_3li8b")
@@ -46,13 +46,13 @@ region = Rect2(0, 1024, 1170, 1024)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_mdl7e")
-}, {
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_qu4a1")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_70d11")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lkdrv")
 }],
 "loop": true,
 "name": &"breathe_idle",
@@ -99,14 +99,13 @@ script = ExtResource("1_v6fml")
 position = Vector2(0, -12)
 scale = Vector2(0.0345312, 0.0335547)
 sprite_frames = SubResource("SpriteFrames_onrkg")
-animation = &"shooting"
+animation = &"breathe_idle"
 autoplay = "breathe_idle"
-flip_h = true
 
 [node name="WeaponHolder" type="Node2D" parent="GFX"]
 
 [node name="Weapon" parent="GFX/WeaponHolder" instance=ExtResource("5_qu4a1")]
-position = Vector2(-11, -13)
+position = Vector2(11, -13)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7)

@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dy62ehrwftqhh" path="res://parallax/parallax-mountain-mountains.png" id="3_kiw3p"]
 [ext_resource type="Texture2D" uid="uid://ccn6dwns8rxub" path="res://parallax/parallax-mountain-montain-far.png" id="4_kiw3p"]
 [ext_resource type="Texture2D" uid="uid://33fxhckdjrn3" path="res://parallax/parallax-mountain-trees.png" id="5_400sg"]
-[ext_resource type="PackedScene" uid="uid://clxmbgxj4wii" path="res://scenes/enemies/SteamTankBoss.tscn" id="7_kiw3p"]
+[ext_resource type="Script" uid="uid://cw6agiqq7j3hl" path="res://scenes/enemies/SteamTankBoss.gd" id="7_kiw3p"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ibkli"]
 
@@ -93,6 +93,6 @@ motion_mirroring = Vector2(544, 0)
 position = Vector2(4, -44)
 texture = ExtResource("3_aug50")
 
-[node name="SteamTankBoss" parent="." instance=ExtResource("7_kiw3p")]
-position = Vector2(103, 28)
-scale = Vector2(0.1, 0.1)
+[node name="SteamTankBoss" type="Node" parent="."]
+script = ExtResource("7_kiw3p")
+metadata/_custom_type_script = "uid://cw6agiqq7j3hl"
