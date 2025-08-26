@@ -11,7 +11,7 @@ class_name SteamTankBoss
 @export var muzzle_flash_frame: int = 1      # frame index in 'fire' that should spawn shell
 
 # Optional: drop reference to the player if you want auto-aim later
-@export var aim_at_player: bool = false
+@export var aim_at_player: bool = true
 @export var spread_degrees: float = 2.5
 
 signal defeated
@@ -26,15 +26,37 @@ var _state: String = "idle"
 @onready var fire_timer: Timer = $FireTimer
 @onready var sfx_fire: AudioStreamPlayer2D = $SfxFire
 @onready var sfx_hurt: AudioStreamPlayer2D = $SfxHurt
+var _flash_tween: Tween  
+
+@onready var sparks: CPUParticles2D = $HitSparks
+@onready var puff:   CPUParticles2D = $PuffSmoke
+
 
 func _ready() -> void:
 	hp = max_hp
-	sprite.play("idle")
-	fire_timer.wait_time = fire_interval
-	fire_timer.start()
-	sprite.frame_changed.connect(_on_frame_changed)
-	sprite.animation_finished.connect(_on_anim_finished)
 
+	# attach shader if missing 
+	if sprite.material == null:
+		var mat := ShaderMaterial.new()
+		mat.shader = load("res://shaders/sprite_flash.gdshader")
+		sprite.material = mat
+		
+	# Ensure sprites/animations exist
+	sprite.play("idle")
+
+	# Make sure the timer actually runs and is connected
+	fire_timer.wait_time = fire_interval
+	fire_timer.one_shot = false
+	if not fire_timer.timeout.is_connected(_on_FireTimer_timeout):
+		fire_timer.timeout.connect(_on_FireTimer_timeout)
+	fire_timer.start()
+
+	# Sprite signals used to spawn shell exactly on muzzle-flash frame
+	if not sprite.frame_changed.is_connected(_on_frame_changed):
+		sprite.frame_changed.connect(_on_frame_changed)
+	if not sprite.animation_finished.is_connected(_on_anim_finished):
+		sprite.animation_finished.connect(_on_anim_finished)
+		
 func _physics_process(delta: float) -> void:
 	# Simple left-to-right patrol creep; replace with your level script if needed
 	velocity.x = -move_speed
@@ -101,11 +123,60 @@ func _apply_recoil() -> void:
 # --- Damage / death API used by bullets etc. ---
 func apply_damage(amount: int) -> void:
 	hp -= amount
-	if sfx_hurt.stream:
-		sfx_hurt.play()
+	_flash_hit()
+	_emit_hit_fx(global_position + Vector2(0, -8))
+	_hit_stop()
+	_recoil()
+	_shake_camera()
+	_update_damage_vfx()
+	
+	if sfx_hurt.stream: sfx_hurt.play()
+
 	if hp <= 0:
 		_die()
 
+func _flash_hit() -> void:
+	var m := sprite.material as ShaderMaterial
+	if _flash_tween and _flash_tween.is_running():
+		_flash_tween.kill()
+	_flash_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	m.set_shader_parameter("flash_color", Color(1,1,1,1))  # white flash
+	m.set_shader_parameter("flash", 1.0)
+	_flash_tween.tween_property(m, "shader_parameter/flash", 0.0, 0.12)
+	
+func _emit_hit_fx(at: Vector2) -> void:
+	sparks.global_position = at
+	puff.global_position   = at
+	sparks.restart()
+	puff.restart()
+	
+func _hit_stop(duration: float = 0.06, scale: float = 0.1) -> void:
+	Engine.time_scale = 1.0 - clamp(scale, 0.0, 0.9)
+	get_tree().create_timer(duration, false, true, true).timeout.connect(
+		func(): Engine.time_scale = 1.0
+	)
+	
+func _shake_camera(intensity := 0.4, time := 0.12) -> void:
+	var cam := get_viewport().get_camera_2d()
+	if cam == null: return
+	var t := create_tween()
+	for i in 4:
+		t.tween_property(cam, "offset", Vector2(randf_range(-intensity,intensity), randf_range(-intensity,intensity)), time/4.0)
+	t.tween_property(cam, "offset", Vector2.ZERO, 0.05)
+	
+@onready var smoke_l := $SmokeL
+@onready var smoke_m := $SmokeM
+@onready var smoke_h := $SmokeH
+
+func _update_damage_vfx() -> void:
+	var r := float(hp) / float(max_hp)
+	smoke_l.emitting = (r <= 0.75)
+	smoke_m.emitting = (r <= 0.50)
+	smoke_h.emitting = (r <= 0.25)
+
+func _recoil(px: float = 2.0) -> void:
+	global_position.x += px * sign(-1.0 if velocity.x == 0.0 else -velocity.x)
+	
 func _die() -> void:
 	emit_signal("defeated")
 	queue_free()

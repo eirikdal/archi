@@ -1,16 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://cy53drbxer67q"]
+[gd_scene load_steps=7 format=3 uid="uid://cy53drbxer67q"]
 
 [ext_resource type="Script" uid="uid://oix37xsutcgx" path="res://Bullet.gd" id="1_hf8mt"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hf8mt"]
 
 [sub_resource type="Gradient" id="Gradient_hf8mt"]
+offsets = PackedFloat32Array(0.993151, 1)
+colors = PackedColorArray(0.710663, 0.461658, 0.139999, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_p1sfj"]
 gradient = SubResource("Gradient_hf8mt")
 width = 2
 
+[sub_resource type="Gradient" id="Gradient_p1sfj"]
+offsets = PackedFloat32Array(0, 0.486207)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hf8mt"]
+radius = 2.99984
+height = 52.0809
+
 [node name="Bullet" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 2
 script = ExtResource("1_hf8mt")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -18,3 +29,16 @@ shape = SubResource("CircleShape2D_hf8mt")
 
 [node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
 texture = SubResource("GradientTexture1D_p1sfj")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="Trail" type="Line2D" parent="."]
+visible = false
+width = 1.0
+default_color = Color(0.968627, 0.894118, 0.603922, 1)
+gradient = SubResource("Gradient_p1sfj")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
+visible = false
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_hf8mt")

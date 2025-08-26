@@ -1,7 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://clxmbgxj4wii"]
+[gd_scene load_steps=15 format=3 uid="uid://clxmbgxj4wii"]
 
 [ext_resource type="Texture2D" uid="uid://tokrewwjdeit" path="res://art/placeholders/tank.png" id="1_adosm"]
 [ext_resource type="Script" uid="uid://cw6agiqq7j3hl" path="res://scenes/enemies/SteamTankBoss.gd" id="1_ne8ig"]
+[ext_resource type="Shader" uid="uid://dv3bxcjnm16ye" path="res://shaders/sprite_flash.gdshader" id="2_i8xmp"]
+[ext_resource type="Script" uid="uid://bhho6bm0y1h75" path="res://scenes/enemies/HurtBox.gd" id="3_v8kde"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2b57x"]
+shader = ExtResource("2_i8xmp")
+shader_parameter/flash = 0.0
+shader_parameter/flash_color = Vector4(1, 1, 1, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ne8ig"]
 atlas = ExtResource("1_adosm")
@@ -50,21 +57,36 @@ radius = 100.02
 [sub_resource type="CircleShape2D" id="CircleShape2D_v8kde"]
 radius = 99.1262
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v8kde"]
+size = Vector2(428.5, 473.5)
+
+[sub_resource type="Gradient" id="Gradient_i8xmp"]
+colors = PackedColorArray(0, 0, 0, 1, 0.815686, 0.831373, 0.835294, 1)
+
 [node name="SteamTankBoss" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 5
 script = ExtResource("1_ne8ig")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
+material = SubResource("ShaderMaterial_2b57x")
 position = Vector2(33, -14)
 sprite_frames = SubResource("SpriteFrames_khg3p")
 animation = &"idle"
 flip_h = true
 
 [node name="HitBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 shape = SubResource("CircleShape2D_ne8ig")
 
 [node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("3_v8kde")
+boss_owner = NodePath("..")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(-3, 0)
@@ -77,3 +99,39 @@ shape = SubResource("CircleShape2D_v8kde")
 [node name="SfxFire" type="AudioStreamPlayer2D" parent="."]
 
 [node name="SfxHurt" type="AudioStreamPlayer2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(5.75, -2.75)
+shape = SubResource("RectangleShape2D_v8kde")
+
+[node name="HitSparks" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 14
+lifetime = 0.25
+one_shot = true
+spread = 30.0
+gravity = Vector2(0, 220)
+initial_velocity_min = 140.0
+initial_velocity_max = 140.0
+scale_amount_min = 0.7
+scale_amount_max = 0.7
+
+[node name="PuffSmoke" type="CPUParticles2D" parent="."]
+emitting = false
+lifetime = 0.45
+one_shot = true
+spread = 50.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 60.0
+initial_velocity_max = 60.0
+color = Color(0.815686, 0.831373, 0.835294, 1)
+color_ramp = SubResource("Gradient_i8xmp")
+
+[node name="SmokeL" type="CPUParticles2D" parent="."]
+emitting = false
+
+[node name="SmokeM" type="CPUParticles2D" parent="."]
+emitting = false
+
+[node name="SmokeH" type="CPUParticles2D" parent="."]
+emitting = false

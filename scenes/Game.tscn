@@ -23,7 +23,7 @@ fill_to = Vector2(0.160377, 0)
 [node name="Game" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_ibkli")]
-position = Vector2(0, 11)
+position = Vector2(0, 39)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(0, -42)

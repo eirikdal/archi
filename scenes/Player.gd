@@ -13,22 +13,22 @@ class_name PlayerBase
 ## -- Internals --------------------------------------------------------------
 var _slide_timer: float = 0.0
 var _is_sliding: bool = false
-var _is_shooting: bool = false            # new: gate shooting anim
+var _shooting_held: bool = false          # <- hold-to-shoot flag
 var _coyote: float = 0.0                  # jump forgiveness
-const RUN_THRESHOLD := 5.0                # min speed to count as "moving"
+const RUN_THRESHOLD := 5.0                 # min speed to count as "moving"
 
-#var _weapon: Weapon
 @onready var gfx: Node2D = $GFX
 @onready var anim: AnimatedSprite2D = $GFX/AnimatedSprite2D
 @onready var _weapon: Weapon = $GFX/WeaponHolder/Weapon
 
 func _ready() -> void:
 	if owner == get_tree().current_scene:
-		gfx.scale.x = 1.0     # face right at start   # not a pooled dummy
-		_play("breathe_idle")               # default
+		gfx.scale.x = 1.0
+		_play("breathe_idle")
 	if _weapon:
-		_weapon.set_shooter(self)	
-	anim.animation_finished.connect(_on_animation_finished)
+		_weapon.set_shooter(self)
+	# We no longer need animation_finished for shooting loops, but keep it if other anims rely on it
+	# anim.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
 	apply_gravity(delta)
@@ -40,7 +40,7 @@ func apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
 	else:
-		_coyote = 0.12                      # reset coyote time
+		_coyote = 0.12
 
 func handle_input(delta: float) -> void:
 	var dir := Input.get_axis("move_left", "move_right")
@@ -60,18 +60,17 @@ func handle_input(delta: float) -> void:
 	if Input.is_action_just_pressed("slide") and not _is_sliding:
 		start_slide()
 
-	# Shooting: fire as long as held, but trigger the shooting animation only on press
-	if Input.is_action_pressed("shoot") and _weapon:
+	# --- Shooting (automatic) ---
+	_shooting_held = Input.is_action_pressed("shoot")
+	if _shooting_held and _weapon:
+		# Fire is throttled by Weapon.try_fire() internal cooldown
 		_weapon.try_fire()
-	if Input.is_action_just_pressed("shoot"):
-		_start_shoot_anim()
 
 func update_animation() -> void:
-	# 1) Shooting has highest priority (air or ground)
-	if _is_shooting:
-		# Ensure we stay on the shooting anim until it finishes (non-looping)
+	# 1) If holding shoot, force shooting loop (air or ground)
+	if _shooting_held:
 		if anim.animation != "shooting" or not anim.is_playing():
-			_play("shooting", "running")    # fallback if missing
+			_play("shooting", "running")   # 'shooting' should be Loop = On in SpriteFrames
 		return
 
 	# 2) Airborne next
@@ -80,7 +79,7 @@ func update_animation() -> void:
 		_play("jumping", "running")
 		return
 
-	# 3) Sliding (use running for now)
+	# 3) Sliding
 	if _is_sliding:
 		_play("running")
 		return
@@ -100,18 +99,8 @@ func start_slide() -> void:
 	await get_tree().create_timer(slide_time).timeout
 	$CollisionShape2D.disabled = false
 	_is_sliding = false
+
 # --- helpers ---------------------------------------------------------------
-
-func _start_shoot_anim() -> void:
-	_is_shooting = true
-	# Expect "shooting" to be set as NON-looping in SpriteFrames.
-	# If it's missing, fallback keeps things visible.
-	_play("shooting", "running")
-
-func _on_animation_finished() -> void:
-	# Only unlock when the shooting clip ends.
-	if anim.animation == "shooting":
-		_is_shooting = false
 
 func _play(name: String, fallback: String = "") -> void:
 	var target := name
