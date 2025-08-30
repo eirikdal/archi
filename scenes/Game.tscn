@@ -1,14 +1,37 @@
-[gd_scene load_steps=11 format=3 uid="uid://myebsdahcp3j"]
+[gd_scene load_steps=15 format=3 uid="uid://myebsdahcp3j"]
 
 [ext_resource type="PackedScene" uid="uid://dpsk8dfytpkjm" path="res://scenes/Player.tscn" id="1_ibkli"]
+[ext_resource type="Shader" uid="uid://brey3ilr8lpuh" path="res://shaders/foliage.gdshader" id="2_400sg"]
 [ext_resource type="Texture2D" uid="uid://cg0gh152jr1sd" path="res://parallax/parallax-mountain-bg.png" id="2_s0nni"]
 [ext_resource type="Texture2D" uid="uid://drrn044l2ma12" path="res://parallax/parallax-mountain-foreground-trees.png" id="3_aug50"]
 [ext_resource type="Texture2D" uid="uid://dy62ehrwftqhh" path="res://parallax/parallax-mountain-mountains.png" id="3_kiw3p"]
 [ext_resource type="Texture2D" uid="uid://ccn6dwns8rxub" path="res://parallax/parallax-mountain-montain-far.png" id="4_kiw3p"]
 [ext_resource type="Texture2D" uid="uid://33fxhckdjrn3" path="res://parallax/parallax-mountain-trees.png" id="5_400sg"]
 [ext_resource type="PackedScene" uid="uid://clxmbgxj4wii" path="res://scenes/enemies/SteamTankBoss.tscn" id="7_kiw3p"]
+[ext_resource type="Script" uid="uid://ws42x48nwvls" path="res://scenes/GroundStreamer.gd" id="9_g4kob"]
+[ext_resource type="PackedScene" uid="uid://rr20dhwi2qr" path="res://scenes/levels/chunks/GroundChunk.tscn" id="10_qy1jj"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ibkli"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kiw3p"]
+shader = ExtResource("2_400sg")
+shader_parameter/COL0 = Color(0.137, 0.086, 0.141, 1)
+shader_parameter/COL1 = Color(0.176, 0.141, 0.251, 1)
+shader_parameter/COL2 = Color(0.22, 0.18, 0.298, 1)
+shader_parameter/COL3 = Color(0.282, 0.247, 0.329, 1)
+shader_parameter/COL4 = Color(0.149, 0.251, 0.18, 1)
+shader_parameter/COL5 = Color(0.223, 0.345, 0.212, 1)
+shader_parameter/COL6 = Color(0.325, 0.478, 0.286, 1)
+shader_parameter/COL7 = Color(0.455, 0.6, 0.341, 1)
+shader_parameter/COL8 = Color(0.576, 0.69, 0.447, 1)
+shader_parameter/COL9 = Color(0.702, 0.776, 0.545, 1)
+shader_parameter/COL10 = Color(0.827, 0.874, 0.675, 1)
+shader_parameter/COL11 = Color(0.816, 0.831, 0.835, 1)
+shader_parameter/world_scale = 1.0
+shader_parameter/base_height = 32.0
+shader_parameter/detail_freq = 0.08
+shader_parameter/clump_freq = 0.02
+shader_parameter/parallax = 0.0
 
 [sub_resource type="Gradient" id="Gradient_aug50"]
 offsets = PackedFloat32Array(0, 0.90035, 0.972028, 0.984266, 0.998252, 1)
@@ -19,11 +42,12 @@ gradient = SubResource("Gradient_aug50")
 width = 2000
 height = 20
 fill_to = Vector2(0.160377, 0)
+repeat = 2
 
 [node name="Game" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_ibkli")]
-position = Vector2(0, 39)
+position = Vector2(0, 31)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(0, -42)
@@ -35,10 +59,13 @@ limit_bottom = 0
 position = Vector2(0, 50)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(0, -15)
 shape = SubResource("WorldBoundaryShape2D_ibkli")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
+visible = false
 top_level = true
+material = SubResource("ShaderMaterial_kiw3p")
 texture = SubResource("GradientTexture2D_kiw3p")
 offset = Vector2(0, 63)
 
@@ -60,7 +87,7 @@ motion_offset = Vector2(0, 29)
 motion_mirroring = Vector2(544, 0)
 
 [node name="BackgroundMountains" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer5"]
-position = Vector2(2, -48)
+position = Vector2(4, -59)
 texture = ExtResource("3_kiw3p")
 
 [node name="ParallaxLayer3" type="ParallaxLayer" parent="ParallaxBackground"]
@@ -69,7 +96,7 @@ motion_offset = Vector2(0, 29)
 motion_mirroring = Vector2(544, 0)
 
 [node name="BackgroundMountain" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer3"]
-position = Vector2(4, -29)
+position = Vector2(3, -48)
 texture = ExtResource("4_kiw3p")
 
 [node name="ParallaxLayer4" type="ParallaxLayer" parent="ParallaxBackground"]
@@ -78,7 +105,7 @@ motion_offset = Vector2(0, 29)
 motion_mirroring = Vector2(544, 0)
 
 [node name="BackgroundTrees" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer4"]
-position = Vector2(1, -37)
+position = Vector2(0, -61)
 texture = ExtResource("5_400sg")
 
 [node name="ParallaxBackground2" type="ParallaxBackground" parent="."]
@@ -90,9 +117,15 @@ motion_offset = Vector2(0, 29)
 motion_mirroring = Vector2(544, 0)
 
 [node name="ForegroundTrees" type="Sprite2D" parent="ParallaxBackground2/ParallaxLayer2"]
-position = Vector2(4, -44)
+position = Vector2(4, -52)
 texture = ExtResource("3_aug50")
 
 [node name="SteamTankBoss" parent="." instance=ExtResource("7_kiw3p")]
-position = Vector2(103, 28)
+position = Vector2(105, 5)
 scale = Vector2(0.1, 0.1)
+
+[node name="GroundStreamer" type="Node2D" parent="."]
+script = ExtResource("9_g4kob")
+chunk_scene = ExtResource("10_qy1jj")
+focus_path = NodePath("../Player/Camera2D")
+ground_y = 50.0

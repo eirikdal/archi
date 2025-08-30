@@ -6,13 +6,19 @@ class_name SteamTankBoss
 @export var move_speed: float = 18.0         # slow creep
 @export var fire_interval: float = 1.6       # seconds between shots
 @export var burst_count: int = 1             # change to 3 for volleys
-@export var recoil_pixels: float = 4.0
 @export var projectile_scene: PackedScene    # assign TankShell.tscn
 @export var muzzle_flash_frame: int = 1      # frame index in 'fire' that should spawn shell
-
-# Optional: drop reference to the player if you want auto-aim later
 @export var aim_at_player: bool = true
 @export var spread_degrees: float = 2.5
+
+# --- Physics tunables ---
+@export var gravity_scale: float = 1.0
+@export var max_fall_speed: float = 1200.0
+@export var ground_snap_distance: float = 6.0
+@export var horiz_friction: float = 1800.0   # damp horizontal speed when idle/on floor
+@export var air_drag: float = 200.0
+@export var knockback_decay: float = 8.0     # higher = fades quicker
+@export var debug_draw_floor: bool = false
 
 signal defeated
 
@@ -26,41 +32,70 @@ var _state: String = "idle"
 @onready var fire_timer: Timer = $FireTimer
 @onready var sfx_fire: AudioStreamPlayer2D = $SfxFire
 @onready var sfx_hurt: AudioStreamPlayer2D = $SfxHurt
-var _flash_tween: Tween  
-
 @onready var sparks: CPUParticles2D = $HitSparks
 @onready var puff:   CPUParticles2D = $PuffSmoke
+@onready var smoke_l := $SmokeL
+@onready var smoke_m := $SmokeM
+@onready var smoke_h := $SmokeH
 
+var _flash_tween: Tween
+var _knockback: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	hp = max_hp
 
-	# attach shader if missing 
 	if sprite.material == null:
 		var mat := ShaderMaterial.new()
 		mat.shader = load("res://shaders/sprite_flash.gdshader")
 		sprite.material = mat
-		
-	# Ensure sprites/animations exist
+
 	sprite.play("idle")
 
-	# Make sure the timer actually runs and is connected
 	fire_timer.wait_time = fire_interval
 	fire_timer.one_shot = false
 	if not fire_timer.timeout.is_connected(_on_FireTimer_timeout):
 		fire_timer.timeout.connect(_on_FireTimer_timeout)
 	fire_timer.start()
 
-	# Sprite signals used to spawn shell exactly on muzzle-flash frame
 	if not sprite.frame_changed.is_connected(_on_frame_changed):
 		sprite.frame_changed.connect(_on_frame_changed)
 	if not sprite.animation_finished.is_connected(_on_anim_finished):
 		sprite.animation_finished.connect(_on_anim_finished)
-		
+
 func _physics_process(delta: float) -> void:
-	# Simple left-to-right patrol creep; replace with your level script if needed
-	velocity.x = -move_speed
+	# --- 1) Gravity ---
+	var g := ProjectSettings.get_setting("physics/2d/default_gravity") as float
+	if not is_on_floor():
+		velocity.y = min(velocity.y + g * gravity_scale * delta, max_fall_speed)
+	else:
+		# prevent tiny positive y when grounded
+		if velocity.y > 0.0:
+			velocity.y = 0.0
+
+	# --- 2) Intentional horizontal movement (creep left) ---
+	var desired_x := -move_speed
+	# add some damping so we don't accumulate excess speed
+	var damp := horiz_friction if is_on_floor() else air_drag
+	velocity.x = move_toward(velocity.x, desired_x, damp * delta)
+
+	# --- 3) Apply knockback as velocity (decays smoothly) ---
+	if _knockback.length() > 0.1:
+		velocity += _knockback
+		_knockback = _knockback.lerp(Vector2.ZERO, clamp(knockback_decay * delta, 0.0, 1.0))
+	else:
+		_knockback = Vector2.ZERO
+
+	# --- 4) Move & slide with floor snap to avoid edge hovering ---
+	set_up_direction(Vector2.UP)
 	move_and_slide()
+
+	if debug_draw_floor:
+		_debug_floor()
+
+func _debug_floor() -> void:
+	var from := global_position
+	var to := from + Vector2(0, ground_snap_distance)
+	get_viewport().debug_draw_line(from, to, Color.CYAN)
 
 func _on_frame_changed() -> void:
 	if sprite.animation == "fire" and sprite.frame == muzzle_flash_frame and not _fired_this_cycle:
@@ -89,9 +124,7 @@ func _play_fire_cycle() -> void:
 	_fired_this_cycle = false
 	sprite.play("fire")
 	_shots_left -= 1
-	# If volley >1, queue next shot slightly later than anim length
 	var next_delay: float = max(0.1, fire_interval * 0.35)
-
 	get_tree().create_timer(next_delay).timeout.connect(func ():
 		if _state == "firing":
 			_play_fire_cycle()
@@ -104,7 +137,6 @@ func _spawn_shell() -> void:
 	var shell: Node2D = projectile_scene.instantiate()
 	shell.global_position = muzzle.global_position
 
-	# Face left by default; rotate slightly for spread if enabled
 	var dir := Vector2.LEFT
 	if aim_at_player:
 		var player := get_tree().get_first_node_in_group("player")
@@ -118,7 +150,9 @@ func _spawn_shell() -> void:
 		sfx_fire.play()
 
 func _apply_recoil() -> void:
-	global_position.x += recoil_pixels
+	# push slightly opposite to barrel direction—use velocity not teleport
+	var recoil_dir := Vector2.RIGHT # firing left, recoil to the right
+	_knockback += recoil_dir * 60.0  # tune this strength
 
 # --- Damage / death API used by bullets etc. ---
 func apply_damage(amount: int) -> void:
@@ -129,8 +163,9 @@ func apply_damage(amount: int) -> void:
 	_recoil()
 	_shake_camera()
 	_update_damage_vfx()
-	
-	if sfx_hurt.stream: sfx_hurt.play()
+
+	if sfx_hurt.stream:
+		sfx_hurt.play()
 
 	if hp <= 0:
 		_die()
@@ -140,22 +175,22 @@ func _flash_hit() -> void:
 	if _flash_tween and _flash_tween.is_running():
 		_flash_tween.kill()
 	_flash_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	m.set_shader_parameter("flash_color", Color(1,1,1,1))  # white flash
+	m.set_shader_parameter("flash_color", Color(1,1,1,1))
 	m.set_shader_parameter("flash", 1.0)
 	_flash_tween.tween_property(m, "shader_parameter/flash", 0.0, 0.12)
-	
+
 func _emit_hit_fx(at: Vector2) -> void:
 	sparks.global_position = at
 	puff.global_position   = at
 	sparks.restart()
 	puff.restart()
-	
+
 func _hit_stop(duration: float = 0.06, scale: float = 0.1) -> void:
 	Engine.time_scale = 1.0 - clamp(scale, 0.0, 0.9)
 	get_tree().create_timer(duration, false, true, true).timeout.connect(
 		func(): Engine.time_scale = 1.0
 	)
-	
+
 func _shake_camera(intensity := 0.4, time := 0.12) -> void:
 	var cam := get_viewport().get_camera_2d()
 	if cam == null: return
@@ -163,10 +198,6 @@ func _shake_camera(intensity := 0.4, time := 0.12) -> void:
 	for i in 4:
 		t.tween_property(cam, "offset", Vector2(randf_range(-intensity,intensity), randf_range(-intensity,intensity)), time/4.0)
 	t.tween_property(cam, "offset", Vector2.ZERO, 0.05)
-	
-@onready var smoke_l := $SmokeL
-@onready var smoke_m := $SmokeM
-@onready var smoke_h := $SmokeH
 
 func _update_damage_vfx() -> void:
 	var r := float(hp) / float(max_hp)
@@ -175,8 +206,10 @@ func _update_damage_vfx() -> void:
 	smoke_h.emitting = (r <= 0.25)
 
 func _recoil(px: float = 2.0) -> void:
-	global_position.x += px * sign(-1.0 if velocity.x == 0.0 else -velocity.x)
-	
+	# convert old teleport recoil into a small velocity jab opposite current motion
+	var dir := -1.0 if (velocity.x == 0.0) else -signf(velocity.x)
+	_knockback += Vector2(dir * 40.0, -20.0)  # tiny lift feels chunky but gravity brings him back
+
 func _die() -> void:
 	emit_signal("defeated")
 	queue_free()
