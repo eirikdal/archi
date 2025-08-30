@@ -3,7 +3,7 @@ extends CharacterBody2D
 class_name PlayerBase
 
 ## -- Tweakables -------------------------------------------------------------
-@export var move_speed: float = 200.0
+@export var move_speed: float = 140.0
 @export var jump_impulse: float = -360.0
 @export var gravity: float = 1300.0
 @export var slide_speed: float = 420.0
