@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://myebsdahcp3j"]
+[gd_scene load_steps=17 format=3 uid="uid://myebsdahcp3j"]
 
 [ext_resource type="PackedScene" uid="uid://dpsk8dfytpkjm" path="res://scenes/Player.tscn" id="1_ibkli"]
 [ext_resource type="Script" uid="uid://pa7y8y0bo2x3" path="res://scenes/Camera.gd" id="2_3xj3m"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://clxmbgxj4wii" path="res://scenes/enemies/SteamTankBoss.tscn" id="7_kiw3p"]
 [ext_resource type="Script" uid="uid://ws42x48nwvls" path="res://scenes/GroundStreamer.gd" id="9_g4kob"]
 [ext_resource type="PackedScene" uid="uid://rr20dhwi2qr" path="res://scenes/levels/chunks/GroundChunk.tscn" id="10_qy1jj"]
+[ext_resource type="AudioStream" uid="uid://cgdchpncwd4fh" path="res://art/music/OakForestV2.mp3" id="12_mcffj"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_ibkli"]
 
@@ -131,3 +132,10 @@ script = ExtResource("9_g4kob")
 chunk_scene = ExtResource("10_qy1jj")
 focus_path = NodePath("../Player/Camera2D")
 ground_y = 50.0
+
+[node name="Music" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("12_mcffj")
+volume_db = -16.575
+autoplay = true
+bus = &"Music"
+parameters/looping = true

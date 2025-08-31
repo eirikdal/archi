@@ -2,10 +2,10 @@ extends CharacterBody2D
 class_name SteamTankBoss
 
 # --- Tunables (Inspector) ---
-@export var max_hp: int = 60
+@export var max_hp: int = 1600
 @export var move_speed: float = 18.0         # slow creep
 @export var fire_interval: float = 1.6       # seconds between shots
-@export var burst_count: int = 1             # change to 3 for volleys
+@export var burst_count: int = 3             # change to 3 for volleys
 @export var projectile_scene: PackedScene    # assign TankShell.tscn
 @export var muzzle_flash_frame: int = 1      # frame index in 'fire' that should spawn shell
 @export var aim_at_player: bool = true
@@ -49,6 +49,10 @@ func _ready() -> void:
 		mat.shader = load("res://shaders/sprite_flash.gdshader")
 		sprite.material = mat
 
+	# ensure 'fire' doesn't loop forever
+	if sprite.sprite_frames and sprite.sprite_frames.has_animation("fire"):
+		sprite.sprite_frames.set_animation_loop("fire", false)
+
 	sprite.play("idle")
 
 	fire_timer.wait_time = fire_interval
@@ -61,6 +65,7 @@ func _ready() -> void:
 		sprite.frame_changed.connect(_on_frame_changed)
 	if not sprite.animation_finished.is_connected(_on_anim_finished):
 		sprite.animation_finished.connect(_on_anim_finished)
+
 
 func _physics_process(delta: float) -> void:
 	# --- 1) Gravity ---
@@ -98,7 +103,8 @@ func _debug_floor() -> void:
 	get_viewport().debug_draw_line(from, to, Color.CYAN)
 
 func _on_frame_changed() -> void:
-	if sprite.animation == "fire" and sprite.frame == muzzle_flash_frame and not _fired_this_cycle:
+	# only spawn during active firing cycles
+	if _state == "firing" and sprite.animation == "fire" and sprite.frame == muzzle_flash_frame and not _fired_this_cycle:
 		_fired_this_cycle = true
 		_spawn_shell()
 		_apply_recoil()
@@ -116,20 +122,25 @@ func _on_FireTimer_timeout() -> void:
 	_state = "firing"
 	_play_fire_cycle()
 
+
 func _play_fire_cycle() -> void:
 	if _shots_left <= 0:
 		_state = "idle"
+		_fired_this_cycle = false
+		sprite.play("idle")            # <-- force-return to idle even if fire anim loops
 		fire_timer.start()
 		return
+
 	_fired_this_cycle = false
 	sprite.play("fire")
 	_shots_left -= 1
+
 	var next_delay: float = max(0.1, fire_interval * 0.35)
 	get_tree().create_timer(next_delay).timeout.connect(func ():
 		if _state == "firing":
 			_play_fire_cycle()
 	)
-
+	
 func _spawn_shell() -> void:
 	if projectile_scene == null:
 		push_warning("SteamTankBoss: projectile_scene not set")
@@ -208,7 +219,7 @@ func _update_damage_vfx() -> void:
 func _recoil(px: float = 2.0) -> void:
 	# convert old teleport recoil into a small velocity jab opposite current motion
 	var dir := -1.0 if (velocity.x == 0.0) else -signf(velocity.x)
-	_knockback += Vector2(dir * 40.0, -20.0)  # tiny lift feels chunky but gravity brings him back
+	_knockback += Vector2(dir * 10.0, -10.0)  # tiny lift feels chunky but gravity brings him back
 
 func _die() -> void:
 	emit_signal("defeated")
