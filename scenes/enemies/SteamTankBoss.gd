@@ -17,7 +17,7 @@ class_name SteamTankBoss
 @export var ground_snap_distance: float = 6.0
 @export var horiz_friction: float = 1800.0   # damp horizontal speed when idle/on floor
 @export var air_drag: float = 200.0
-@export var knockback_decay: float = 8.0     # higher = fades quicker
+@export var knockback_decay: float = 24.0     # higher = fades quicker
 @export var debug_draw_floor: bool = false
 
 signal defeated

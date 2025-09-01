@@ -5,7 +5,7 @@ class_name Bullet
 @export var damage: int = 4
 @export var lifetime: float = 0.35
 @export var max_trail_points: int = 6
-@export var knockback: float = 80.0
+@export var knockback: float = 40.0
 
 var _dir: Vector2
 @onready var trail: Line2D = $Trail
