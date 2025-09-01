@@ -1,10 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://ct06hvtpp4n1r"]
+[gd_scene load_steps=4 format=3 uid="uid://ct06hvtpp4n1r"]
 
 [ext_resource type="Script" uid="uid://jxcq4mqcoebt" path="res://Weapon.gd" id="1_wkycj"]
 [ext_resource type="PackedScene" uid="uid://cy53drbxer67q" path="res://scenes/Bullet.tscn" id="2_pkyns"]
+[ext_resource type="AudioStream" uid="uid://caq60wwbqkuis" path="res://art/effects/machine-gun-burst.mp3" id="3_jkuln"]
 
 [node name="Weapon" type="Node2D"]
 script = ExtResource("1_wkycj")
 bullet_scene = ExtResource("2_pkyns")
 
 [node name="Muzzle" type="Marker2D" parent="."]
+
+[node name="SFX_MachineGun" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_jkuln")
+bus = &"Effects"

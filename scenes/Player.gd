@@ -36,6 +36,11 @@ func _physics_process(delta: float) -> void:
 	update_animation()
 	move_and_slide()
 
+func _on_jump():
+	if $SFX_Jump.playing:
+		$SFX_Jump.stop()
+	$SFX_Jump.play()
+
 func apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
@@ -53,6 +58,7 @@ func handle_input(delta: float) -> void:
 	# Jump
 	if Input.is_action_just_pressed("jump") and (_coyote > 0.0 or is_on_floor()):
 		velocity.y = jump_impulse
+		_on_jump()
 	if _coyote > 0.0:
 		_coyote -= delta
 
@@ -62,10 +68,11 @@ func handle_input(delta: float) -> void:
 
 	# --- Shooting (automatic) ---
 	_shooting_held = Input.is_action_pressed("shoot")
-	if _shooting_held and _weapon:
-		# Fire is throttled by Weapon.try_fire() internal cooldown
-		_weapon.try_fire()
-
+	if _weapon:
+		_weapon.set_trigger(_shooting_held)  
+		if _shooting_held:
+			_weapon.try_fire()    
+			
 func update_animation() -> void:
 	# 1) If holding shoot, force shooting loop (air or ground)
 	if _shooting_held:

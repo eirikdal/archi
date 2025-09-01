@@ -1,10 +1,11 @@
-[gd_scene load_steps=17 format=3 uid="uid://dpsk8dfytpkjm"]
+[gd_scene load_steps=18 format=3 uid="uid://dpsk8dfytpkjm"]
 
 [ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="1_v6fml"]
 [ext_resource type="Texture2D" uid="uid://flxge55fvjv2" path="res://art/placeholders/sova_sheet_breathing.png" id="2_3li8b"]
 [ext_resource type="Texture2D" uid="uid://jwhl1oxnq0ao" path="res://art/placeholders/sova running.png" id="3_3li8b"]
 [ext_resource type="Texture2D" uid="uid://boaweg3glnyxo" path="res://art/placeholders/sova shooting.png" id="4_mdl7e"]
 [ext_resource type="PackedScene" uid="uid://ct06hvtpp4n1r" path="res://scenes/Weapon.tscn" id="5_qu4a1"]
+[ext_resource type="AudioStream" uid="uid://bwo5cixinor42" path="res://art/effects/jump.wav" id="6_70d11"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qu4a1"]
 atlas = ExtResource("2_3li8b")
@@ -111,3 +112,8 @@ position = Vector2(11, -13)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7)
 shape = SubResource("CircleShape2D_i3pqv")
+
+[node name="SFX_Jump" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_70d11")
+volume_db = -4.306
+bus = &"Effects"
