@@ -1,9 +1,8 @@
-[gd_scene load_steps=18 format=3 uid="uid://clxmbgxj4wii"]
+[gd_scene load_steps=17 format=3 uid="uid://clxmbgxj4wii"]
 
 [ext_resource type="Texture2D" uid="uid://tokrewwjdeit" path="res://art/placeholders/tank.png" id="1_adosm"]
 [ext_resource type="Script" uid="uid://cw6agiqq7j3hl" path="res://scenes/enemies/SteamTankBoss.gd" id="1_ne8ig"]
 [ext_resource type="Shader" uid="uid://dv3bxcjnm16ye" path="res://shaders/sprite_flash.gdshader" id="2_i8xmp"]
-[ext_resource type="PackedScene" uid="uid://u81nvh5a05jj" path="res://scenes/weapons/TankShell.tscn" id="2_rg5ux"]
 [ext_resource type="Script" uid="uid://bhho6bm0y1h75" path="res://scenes/enemies/HurtBox.gd" id="3_v8kde"]
 [ext_resource type="Script" uid="uid://jrahrj6f6p6n" path="res://scripts/components/health.gd" id="5_2b57x"]
 [ext_resource type="PackedScene" uid="uid://d1yq541hc1uv1" path="res://scripts/ui/EnemyHealthBar.tscn" id="6_khg3p"]
@@ -70,7 +69,6 @@ colors = PackedColorArray(0, 0, 0, 1, 0.815686, 0.831373, 0.835294, 1)
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_ne8ig")
-projectile_scene = ExtResource("2_rg5ux")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 material = SubResource("ShaderMaterial_2b57x")

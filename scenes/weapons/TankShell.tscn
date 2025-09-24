@@ -1,12 +1,116 @@
-[gd_scene load_steps=2 format=3 uid="uid://u81nvh5a05jj"]
+[gd_scene load_steps=16 format=3 uid="uid://u81nvh5a05jj"]
 
 [ext_resource type="Script" uid="uid://cfrq5xpq8bc7e" path="res://scenes/weapons/TankShell.gd" id="1_7ln2l"]
+[ext_resource type="Texture2D" uid="uid://b0d3s7jbcwwlc" path="res://art/weapons/tank_shell_trail.png" id="2_pce1v"]
+[ext_resource type="Texture2D" uid="uid://detvdra4h8fmj" path="res://art/weapons/tank_shell_explosion.png" id="3_gsrfg"]
+[ext_resource type="AudioStream" uid="uid://dgse4iydut2es" path="res://art/effects/tank-shoot.mp3" id="4_yiorf"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_7ln2l"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_pce1v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gsrfg"]
+atlas = ExtResource("2_pce1v")
+region = Rect2(0, 0, 16, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yiorf"]
+atlas = ExtResource("2_pce1v")
+region = Rect2(16, 0, 16, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3mmru"]
+atlas = ExtResource("2_pce1v")
+region = Rect2(32, 0, 16, 8)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_urnw8"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gsrfg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yiorf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3mmru")
+}],
+"loop": true,
+"name": &"trail",
+"speed": 20.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_urnw8"]
+atlas = ExtResource("3_gsrfg")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6obsu"]
+atlas = ExtResource("3_gsrfg")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pjebr"]
+atlas = ExtResource("3_gsrfg")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jufxc"]
+atlas = ExtResource("3_gsrfg")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_5q2b6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_urnw8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6obsu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pjebr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jufxc")
+}],
+"loop": false,
+"name": &"explosion",
+"speed": 20.0
+}]
 
 [node name="TankShell" type="Area2D"]
+collision_layer = 8
 script = ExtResource("1_7ln2l")
+launch_stream = ExtResource("4_yiorf")
+impact_stream = ExtResource("4_yiorf")
 
-[node name="Timer" type="Timer" parent="."]
+[node name="Lifetime" type="Timer" parent="."]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+texture = SubResource("ImageTexture_7ln2l")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_pce1v")
+
+[node name="Trail" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_urnw8")
+animation = &"trail"
+
+[node name="Explosion" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_5q2b6")
+animation = &"explosion"
+frame = 3
+frame_progress = 1.0
+
+[node name="SfxLaunch" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_yiorf")
+pitch_scale = 3.87
+max_distance = 1200.0
+bus = &"Effects"
+
+[node name="SfxImpact" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_yiorf")
+max_distance = 1200.0
+attenuation = 1.25
+bus = &"Effects"
+
+[node name="SfxFlight" type="AudioStreamPlayer2D" parent="."]
+pitch_scale = 1.01
+bus = &"Effects"

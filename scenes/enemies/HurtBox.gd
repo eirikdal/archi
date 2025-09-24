@@ -4,6 +4,8 @@ extends Area2D
 @export var boss_owner: NodePath
 @onready var boss := get_node(boss_owner)    # set to ".." in the Inspector
 
+@onready var health := boss.get_node_or_null("Health")
+
 func _ready() -> void:
 	# We detect player bullets which should also be Area2D
 	if not area_entered.is_connected(_on_area_entered):
@@ -19,7 +21,8 @@ func _on_area_entered(a: Area2D) -> void:
 
 	if dmg > 0 and boss and boss.has_method("apply_damage"):
 		boss.apply_damage(dmg)
-
+		health.apply_damage(dmg)
+  
 	# Optional: delete the bullet on hit
 	if a.is_inside_tree():
 		a.queue_free()

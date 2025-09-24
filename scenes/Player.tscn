@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dpsk8dfytpkjm"]
+[gd_scene load_steps=19 format=3 uid="uid://dpsk8dfytpkjm"]
 
 [ext_resource type="Script" uid="uid://bslmrcgrvs1mq" path="res://scenes/Player.gd" id="1_v6fml"]
 [ext_resource type="Texture2D" uid="uid://flxge55fvjv2" path="res://art/placeholders/sova_sheet_breathing.png" id="2_3li8b"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://boaweg3glnyxo" path="res://art/placeholders/sova shooting.png" id="4_mdl7e"]
 [ext_resource type="PackedScene" uid="uid://ct06hvtpp4n1r" path="res://scenes/Weapon.tscn" id="5_qu4a1"]
 [ext_resource type="AudioStream" uid="uid://bwo5cixinor42" path="res://art/effects/jump.wav" id="6_70d11"]
+[ext_resource type="Script" uid="uid://jrahrj6f6p6n" path="res://scripts/components/health.gd" id="7_cw2d6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qu4a1"]
 atlas = ExtResource("2_3li8b")
@@ -117,3 +118,6 @@ shape = SubResource("CircleShape2D_i3pqv")
 stream = ExtResource("6_70d11")
 volume_db = -4.306
 bus = &"Effects"
+
+[node name="Health" type="Node2D" parent="."]
+script = ExtResource("7_cw2d6")

@@ -158,7 +158,9 @@ func _spawn_shell() -> void:
 
 	get_tree().current_scene.add_child(shell)
 	if sfx_fire.stream:
-		sfx_fire.play()
+		sfx_fire.pitch_scale = randf_range(0.98, 1.03)
+		sfx_fire.play()# In SteamTankBoss.gd, when spawning a shell:
+
 
 func _apply_recoil() -> void:
 	# push slightly opposite to barrel direction—use velocity not teleport
