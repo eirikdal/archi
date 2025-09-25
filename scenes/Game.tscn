@@ -50,11 +50,26 @@ repeat = 2
 [node name="Game" type="Node2D"]
 
 [node name="PlayerHealthBar" parent="." instance=ExtResource("13_2rd6h")]
+layer = 10
 
 [node name="Control" parent="PlayerHealthBar" index="0"]
-anchors_preset = 10
-grow_horizontal = 2
+custom_minimum_size = Vector2(6, 6)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_top = -648.0
+offset_right = 6.0
+offset_bottom = -642.0
+grow_vertical = 0
 player_path = NodePath("../../Player")
+
+[node name="Bar" parent="PlayerHealthBar/Control" index="0"]
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 206.0
+offset_bottom = 36.0
+show_percentage = false
 
 [node name="Player" parent="." instance=ExtResource("1_ibkli")]
 position = Vector2(0, 31)

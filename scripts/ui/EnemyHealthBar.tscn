@@ -6,11 +6,11 @@
 script = ExtResource("1_rn6uy")
 
 [node name="Back" type="ColorRect" parent="."]
-offset_right = 40.0
+offset_right = 200.0
 offset_bottom = 40.0
 color = Color(0.233925, 0.233925, 0.233925, 1)
 
 [node name="Fill" type="ColorRect" parent="."]
-offset_right = 40.0
+offset_right = 200.0
 offset_bottom = 40.0
-color = Color(0.529067, 0.529067, 0.529067, 1)
+color = Color(4.13924e-06, 0.8603, 0.444622, 1)

@@ -145,4 +145,3 @@ script = ExtResource("5_2b57x")
 metadata/_custom_type_script = "uid://jrahrj6f6p6n"
 
 [node name="EnemyHealthBar" parent="." instance=ExtResource("6_khg3p")]
-offset = Vector2(-6, -33)

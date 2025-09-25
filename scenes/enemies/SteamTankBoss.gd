@@ -2,12 +2,12 @@ extends CharacterBody2D
 class_name SteamTankBoss
 
 # --- Tunables (Inspector) ---
-@export var max_hp: int = 1600
-@export var move_speed: float = 18.0         # slow creep
-@export var fire_interval: float = 1.6       # seconds between shots
-@export var burst_count: int = 3             # change to 3 for volleys
-@export var projectile_scene: PackedScene    # assign TankShell.tscn
-@export var muzzle_flash_frame: int = 1      # frame index in 'fire' that should spawn shell
+@export var max_hp: int = 100
+@export var move_speed: float = 18.0
+@export var fire_interval: float = 1.6
+@export var burst_count: int = 3
+@export var projectile_scene: PackedScene
+@export var muzzle_flash_frame: int = 1
 @export var aim_at_player: bool = true
 @export var spread_degrees: float = 2.5
 
@@ -15,14 +15,13 @@ class_name SteamTankBoss
 @export var gravity_scale: float = 1.0
 @export var max_fall_speed: float = 1200.0
 @export var ground_snap_distance: float = 6.0
-@export var horiz_friction: float = 1800.0   # damp horizontal speed when idle/on floor
+@export var horiz_friction: float = 1800.0
 @export var air_drag: float = 200.0
-@export var knockback_decay: float = 24.0     # higher = fades quicker
+@export var knockback_decay: float = 24.0
 @export var debug_draw_floor: bool = false
 
 signal defeated
 
-var hp: int
 var _shots_left: int = 0
 var _fired_this_cycle: bool = false
 var _state: String = "idle"
@@ -37,19 +36,30 @@ var _state: String = "idle"
 @onready var smoke_l := $SmokeL
 @onready var smoke_m := $SmokeM
 @onready var smoke_h := $SmokeH
+@onready var health: Health = $Health
 
 var _flash_tween: Tween
 var _knockback: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	hp = max_hp
+	# --- unify HP with Health component ---
+	if health:
+		health.max_health = max_hp
+		# connect signals once
+		if not health.damaged.is_connected(_on_health_damaged):
+			health.damaged.connect(_on_health_damaged)
+		if not health.health_changed.is_connected(_on_health_changed):
+			health.health_changed.connect(_on_health_changed)
+		if not health.died.is_connected(_die):
+			health.died.connect(_die)
+		# init VFX state
+		_on_health_changed(health.current, health.max_health)
 
 	if sprite.material == null:
 		var mat := ShaderMaterial.new()
 		mat.shader = load("res://shaders/sprite_flash.gdshader")
 		sprite.material = mat
 
-	# ensure 'fire' doesn't loop forever
 	if sprite.sprite_frames and sprite.sprite_frames.has_animation("fire"):
 		sprite.sprite_frames.set_animation_loop("fire", false)
 
@@ -68,29 +78,23 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# --- 1) Gravity ---
 	var g := ProjectSettings.get_setting("physics/2d/default_gravity") as float
 	if not is_on_floor():
 		velocity.y = min(velocity.y + g * gravity_scale * delta, max_fall_speed)
 	else:
-		# prevent tiny positive y when grounded
 		if velocity.y > 0.0:
 			velocity.y = 0.0
 
-	# --- 2) Intentional horizontal movement (creep left) ---
 	var desired_x := -move_speed
-	# add some damping so we don't accumulate excess speed
 	var damp := horiz_friction if is_on_floor() else air_drag
 	velocity.x = move_toward(velocity.x, desired_x, damp * delta)
 
-	# --- 3) Apply knockback as velocity (decays smoothly) ---
 	if _knockback.length() > 0.1:
 		velocity += _knockback
 		_knockback = _knockback.lerp(Vector2.ZERO, clamp(knockback_decay * delta, 0.0, 1.0))
 	else:
 		_knockback = Vector2.ZERO
 
-	# --- 4) Move & slide with floor snap to avoid edge hovering ---
 	set_up_direction(Vector2.UP)
 	move_and_slide()
 
@@ -103,7 +107,6 @@ func _debug_floor() -> void:
 	get_viewport().debug_draw_line(from, to, Color.CYAN)
 
 func _on_frame_changed() -> void:
-	# only spawn during active firing cycles
 	if _state == "firing" and sprite.animation == "fire" and sprite.frame == muzzle_flash_frame and not _fired_this_cycle:
 		_fired_this_cycle = true
 		_spawn_shell()
@@ -122,12 +125,11 @@ func _on_FireTimer_timeout() -> void:
 	_state = "firing"
 	_play_fire_cycle()
 
-
 func _play_fire_cycle() -> void:
 	if _shots_left <= 0:
 		_state = "idle"
 		_fired_this_cycle = false
-		sprite.play("idle")            # <-- force-return to idle even if fire anim loops
+		sprite.play("idle")
 		fire_timer.start()
 		return
 
@@ -140,7 +142,7 @@ func _play_fire_cycle() -> void:
 		if _state == "firing":
 			_play_fire_cycle()
 	)
-	
+
 func _spawn_shell() -> void:
 	if projectile_scene == null:
 		push_warning("SteamTankBoss: projectile_scene not set")
@@ -159,29 +161,39 @@ func _spawn_shell() -> void:
 	get_tree().current_scene.add_child(shell)
 	if sfx_fire.stream:
 		sfx_fire.pitch_scale = randf_range(0.98, 1.03)
-		sfx_fire.play()# In SteamTankBoss.gd, when spawning a shell:
-
+		sfx_fire.play()
 
 func _apply_recoil() -> void:
-	# push slightly opposite to barrel direction—use velocity not teleport
-	var recoil_dir := Vector2.RIGHT # firing left, recoil to the right
-	_knockback += recoil_dir * 60.0  # tune this strength
+	var recoil_dir := Vector2.RIGHT
+	_knockback += recoil_dir * 60.0
 
-# --- Damage / death API used by bullets etc. ---
+# --- Unified damage API: forward to Health only ---
 func apply_damage(amount: int) -> void:
-	hp -= amount
+	if health:
+		health.apply_damage(amount)
+
+# --- Effects driven by Health signals ---
+func _on_health_damaged(amount: int) -> void:
 	_flash_hit()
 	_emit_hit_fx(global_position + Vector2(0, -8))
 	_hit_stop()
 	_recoil()
 	_shake_camera()
-	_update_damage_vfx()
-
 	if sfx_hurt.stream:
 		sfx_hurt.play()
 
-	if hp <= 0:
-		_die()
+func _on_health_changed(current: int, maxv: int) -> void:
+	var r := (float(current) / float(maxv)) if (maxv > 0) else 0.0
+	_update_damage_vfx_ratio(r)
+
+func _update_damage_vfx_ratio(ratio: float) -> void:
+	smoke_l.emitting = (ratio <= 0.75)
+	smoke_m.emitting = (ratio <= 0.50)
+	smoke_h.emitting = (ratio <= 0.25)
+
+func _recoil(px: float = 2.0) -> void:
+	var dir := -1.0 if (velocity.x == 0.0) else -signf(velocity.x)
+	_knockback += Vector2(dir * 10.0, -10.0)
 
 func _flash_hit() -> void:
 	var m := sprite.material as ShaderMaterial
@@ -211,17 +223,6 @@ func _shake_camera(intensity := 0.4, time := 0.12) -> void:
 	for i in 4:
 		t.tween_property(cam, "offset", Vector2(randf_range(-intensity,intensity), randf_range(-intensity,intensity)), time/4.0)
 	t.tween_property(cam, "offset", Vector2.ZERO, 0.05)
-
-func _update_damage_vfx() -> void:
-	var r := float(hp) / float(max_hp)
-	smoke_l.emitting = (r <= 0.75)
-	smoke_m.emitting = (r <= 0.50)
-	smoke_h.emitting = (r <= 0.25)
-
-func _recoil(px: float = 2.0) -> void:
-	# convert old teleport recoil into a small velocity jab opposite current motion
-	var dir := -1.0 if (velocity.x == 0.0) else -signf(velocity.x)
-	_knockback += Vector2(dir * 10.0, -10.0)  # tiny lift feels chunky but gravity brings him back
 
 func _die() -> void:
 	emit_signal("defeated")

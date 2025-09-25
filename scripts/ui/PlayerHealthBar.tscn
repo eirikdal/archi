@@ -5,8 +5,11 @@
 [node name="CanvasLayer" type="CanvasLayer"]
 
 [node name="Control" type="Control" parent="."]
+modulate = Color(0.26334, 0.97344, 3.85046e-07, 1)
 layout_mode = 3
+anchors_preset = 10
 anchor_right = 1.0
+offset_bottom = 25.0
 script = ExtResource("1_tedwi")
 
 [node name="Bar" type="ProgressBar" parent="Control"]

@@ -77,8 +77,9 @@ func _hit(target: Node) -> void:
 	_alive = false
 
 	# Damage/knockback
-	if target and target.has_method("apply_damage"):
-		target.apply_damage(damage)
+	var health := target.get_node_or_null("Health")
+	if health and health.has_method("apply_damage"):
+		health.apply_damage(damage)
 	if target is CharacterBody2D:
 		(target as CharacterBody2D).velocity += _dir * knockback
 
