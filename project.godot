@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="sova"
-run/main_scene="uid://myebsdahcp3j"
+run/main_scene="uid://cp60i4v27hr2r"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
