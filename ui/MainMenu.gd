@@ -54,3 +54,7 @@ func _input(event: InputEvent) -> void:
 		_on_start_pressed()
 	if event.is_action_pressed("ui_cancel") and options_panel.visible:
 		_on_back_pressed()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		get_tree().change_scene_to_file("res://ui/MainMenu.tscn")

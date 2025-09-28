@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cp60i4v27hr2r"]
+[gd_scene load_steps=3 format=3 uid="uid://cp60i4v27hr2r"]
 
 [ext_resource type="Script" uid="uid://djxreaqyldgab" path="res://ui/MainMenu.gd" id="1_b00nv"]
+[ext_resource type="Texture2D" uid="uid://wv4vqgbjqes1" path="res://art/menu/menu_bg.png" id="2_rn8js"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -20,9 +21,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -39.0
-offset_top = -64.0
+offset_top = 5.0
 offset_right = 39.0
-offset_bottom = 64.0
+offset_bottom = 133.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -31,8 +32,9 @@ layout_mode = 2
 alignment = 1
 
 [node name="Label" type="Label" parent="CanvasLayer/CenterContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
-text = "OWLBOYS"
+text = "Night Guardians of Ukraine"
 
 [node name="StartButton" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer"]
 layout_mode = 2
@@ -66,3 +68,12 @@ layout_mode = 2
 [node name="BackButon" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer/OptionsPanel/VBoxContainer"]
 layout_mode = 2
 text = "Back"
+
+[node name="BG" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.8, 0.64)
+texture = ExtResource("2_rn8js")
+expand_mode = 4
+stretch_mode = 2
