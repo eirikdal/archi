@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cp60i4v27hr2r"]
+[gd_scene load_steps=4 format=3 uid="uid://cp60i4v27hr2r"]
 
 [ext_resource type="Script" uid="uid://djxreaqyldgab" path="res://ui/MainMenu.gd" id="1_b00nv"]
 [ext_resource type="Texture2D" uid="uid://wv4vqgbjqes1" path="res://art/menu/menu_bg.png" id="2_rn8js"]
+[ext_resource type="AudioStream" uid="uid://cgdchpncwd4fh" path="res://art/music/OakForestV2.mp3" id="3_nmrkx"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -77,3 +78,10 @@ scale = Vector2(0.8, 0.64)
 texture = ExtResource("2_rn8js")
 expand_mode = 4
 stretch_mode = 2
+
+[node name="Music" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_nmrkx")
+volume_db = -16.575
+autoplay = true
+bus = &"Music"
+parameters/looping = true
