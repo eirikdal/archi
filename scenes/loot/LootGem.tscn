@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://2p5p5sixqu1p"]
+
+[sub_resource type="CircleShape2D" id="2"]
+radius = 5.0
+
+[node name="LootGem" type="Area2D"]
+collision_layer = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("2")
+debug_color = Color(0, 1, 0, 0.5)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

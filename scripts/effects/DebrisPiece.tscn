@@ -1,0 +1,33 @@
+; res://scenes/effects/DebrisPiece.tscn
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/DebrisPiece.gd" id="1"]
+
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(6, 4)
+
+[node name="DebrisPiece" type="RigidBody2D"]
+script = ExtResource("1")
+gravity_scale = 1.0
+linear_damp = 0.2
+angular_damp = 0.1
+can_sleep = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+offset = Vector2(0, -1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("2")
+
+[node name="TrailSmoke" type="CPUParticles2D" parent="."]
+amount = 16
+lifetime = 0.6
+one_shot = false
+emitting = false
+direction = Vector2(0, -1)
+gravity = Vector2(0, 0)
+initial_velocity_min = 12.0
+initial_velocity_max = 22.0
+scale_amount_min = 0.5
+scale_amount_max = 0.8
+color = Color(0.5, 0.5, 0.5, 0.7)

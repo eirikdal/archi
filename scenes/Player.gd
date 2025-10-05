@@ -11,7 +11,6 @@ class_name PlayerBase
 @export var hero_id: String = "GENERIC"   # set per-scene in Inspector
 
 ## -- Internals --------------------------------------------------------------
-var _slide_timer: float = 0.0
 var _is_sliding: bool = false
 var _shooting_held: bool = false          # <- hold-to-shoot flag
 var _coyote: float = 0.0                  # jump forgiveness

@@ -1,0 +1,101 @@
+[gd_scene load_steps=13 format=3 uid="uid://dqym7kdw8kguh"]
+
+[ext_resource type="Script" uid="uid://dkqk5ot2anjjj" path="res://scripts/effects/ExplosionSmall.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://2if3adnpx3jn" path="res://art/placeholders/spark.png" id="2_gc36w"]
+[ext_resource type="Texture2D" uid="uid://cabggl8d13nat" path="res://art/placeholders/smoke.png" id="3_btjd0"]
+[ext_resource type="Texture2D" uid="uid://dckvmmwqdagt" path="res://art/placeholders/explosion_strip.png" id="4_t1scw"]
+
+[sub_resource type="Gradient" id="Gradient_gc36w"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_cp8ib"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ma6nw"]
+atlas = ExtResource("4_t1scw")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jv14d"]
+atlas = ExtResource("4_t1scw")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nv25i"]
+atlas = ExtResource("4_t1scw")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jo6m2"]
+atlas = ExtResource("4_t1scw")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vffh5"]
+atlas = ExtResource("4_t1scw")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_27sry"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ma6nw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jv14d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nv25i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jo6m2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vffh5")
+}],
+"loop": true,
+"name": &"boom",
+"speed": 8.0
+}]
+
+[node name="ExplosionSmall" type="Node2D"]
+script = ExtResource("1")
+flipbook_texture = ExtResource("4_t1scw")
+
+[node name="Sparks" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 24
+texture = ExtResource("2_gc36w")
+lifetime = 0.45
+one_shot = true
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 380)
+initial_velocity_min = 90.0
+initial_velocity_max = 160.0
+scale_amount_min = 0.7
+scale_amount_max = 1.2
+color = Color(1, 0.85, 0.6, 1)
+color_ramp = SubResource("Gradient_gc36w")
+
+[node name="Smoke" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 12
+texture = ExtResource("3_btjd0")
+lifetime = 0.6
+one_shot = true
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 12.0
+initial_velocity_max = 22.0
+scale_amount_min = 0.7
+scale_amount_max = 1.2
+color = Color(1, 0.85, 0.6, 1)
+color_ramp = SubResource("Gradient_gc36w")
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+color = Color(1, 0.9, 0.7, 1)
+energy = 0.0
+texture = SubResource("ImageTexture_cp8ib")
+texture_scale = 1.2
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_27sry")
+animation = &"boom"

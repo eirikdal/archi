@@ -38,8 +38,25 @@ var _state: String = "idle"
 @onready var smoke_h := $SmokeH
 @onready var health: Health = $Health
 
+
+# death scene
+@export var death_slowmo_time: float = 0.45
+@export var slowmo_scale: float = 0.25
+@export var post_slowmo_pause: float = 0.6
+@export var explosion_count: int = 6
+@export var explosion_radius: float = 48.0
+@export var loot_scene: PackedScene
+@export var explosion_scene: PackedScene
+@export var debris_scene: PackedScene
+@export var death_sound: AudioStream
+@export var death_shake_strength: float = 14.0
+@export var camera_zoom_target: float = 3.5
+@export var camera_zoom_time: float = 0.35
+
+
 var _flash_tween: Tween
 var _knockback: Vector2 = Vector2.ZERO
+
 
 func _ready() -> void:
 	# --- unify HP with Health component ---
@@ -225,5 +242,164 @@ func _shake_camera(intensity := 0.4, time := 0.12) -> void:
 	t.tween_property(cam, "offset", Vector2.ZERO, 0.05)
 
 func _die() -> void:
+	# stop combat/ai
+	if fire_timer and fire_timer.is_stopped() == false:
+		fire_timer.stop()
+	_state = "dead"
+	set_physics_process(false)
+
+	# safety: stop collisions if present
+	if has_node("CollisionShape2D"):
+		$CollisionShape2D.disabled = true
+	if has_node("HurtBox"):
+		$HurtBox.set_process(false)
+
+	# play SFX
+	if death_sound:
+		var ap := AudioStreamPlayer2D.new()
+		add_child(ap)
+		ap.stream = death_sound
+		ap.autoplay = false
+		ap.play()
+
+	# optional death anim if you have it in SpriteFrames
+	if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation("death"):
+		sprite.play("death")
+	else:
+		sprite.play("idle")
+
+	# kick off the orchestrated sequence (async)
+	await _do_death_sequence()
+
 	emit_signal("defeated")
 	queue_free()
+
+var _is_dying: bool = false
+
+func _play_camera_shake(strength: float = death_shake_strength) -> void:
+	var cam := get_viewport().get_camera_2d()
+	if cam == null: return
+	var t := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	for i in 4:
+		t.tween_property(cam, "offset",
+			Vector2(randf_range(-strength, strength), randf_range(-strength, strength)),
+			0.05)
+	t.tween_property(cam, "offset", Vector2.ZERO, 0.08)
+
+func _zoom_camera(target_zoom: float, time_sec: float) -> void:
+	var cam := get_viewport().get_camera_2d()
+	if cam == null: return
+	var t := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(cam, "zoom", Vector2(target_zoom, target_zoom), time_sec)
+
+
+func spawn_explosion_at(pos: Vector2, scale_override: float = 1.0) -> void:
+	if explosion_scene == null:
+		return
+	var ex := explosion_scene.instantiate()
+	get_tree().current_scene.add_child(ex)
+	ex.global_position = pos
+
+	# Prefer custom helper if present; otherwise set Node2D.scale directly
+	if ex.has_method("apply_scale_multiplier"):
+		ex.call("apply_scale_multiplier", scale_override)
+	elif "scale" in ex and ex.scale is Vector2:
+		ex.scale = ex.scale * Vector2.ONE * scale_override
+
+	# optional: play SFX here if your explosion scene doesn't handle it
+
+func spawn_explosions(count: int) -> void:
+	for i in count:
+		var off := Vector2(
+			randf_range(-explosion_radius, explosion_radius),
+			randf_range(-explosion_radius * 0.6, explosion_radius * 0.6)
+		)
+		spawn_explosion_at(global_position + off)
+
+func spawn_debris(count: int, scattered: bool = false) -> void:
+	if debris_scene == null: return
+	for i in count:
+		var d := debris_scene.instantiate()
+		get_tree().current_scene.add_child(d)
+		var lx := randf_range(-explosion_radius, explosion_radius)
+		var ly := randf_range(-explosion_radius * 0.5, explosion_radius * 0.5)
+		if scattered:
+			lx *= 1.6
+			ly *= 1.2
+		d.global_position = global_position + Vector2(lx, ly)
+		if d is RigidBody2D:
+			var impulse := Vector2(randf_range(-180, 180), randf_range(-220, -80))
+			d.apply_impulse(Vector2.ZERO, impulse)
+
+func _stop_emitters() -> void:
+	# reuse your existing smoke emitters for drama
+	if smoke_h: smoke_h.emitting = false
+	if smoke_m: smoke_m.emitting = false
+	if smoke_l: smoke_l.emitting = false
+
+func _start_emitters() -> void:
+	if smoke_h: smoke_h.emitting = true
+	if smoke_m: smoke_m.emitting = true
+	if smoke_l: smoke_l.emitting = true
+
+func _drop_loot() -> void:
+	if loot_scene == null: return
+	var loot := loot_scene.instantiate()
+	get_tree().current_scene.add_child(loot)
+	loot.global_position = global_position + Vector2(0, -12)
+
+func _award_victory() -> void:
+	# call your GameManager if you have one
+	if Engine.has_singleton("GameManager"):
+		var gm = Engine.get_singleton("GameManager")
+		if gm.has_method("on_boss_defeated"):
+			gm.call("on_boss_defeated", name)
+
+func _restore_timescale_safely() -> void:
+	Engine.time_scale = 1.0
+
+func _play_final_boom() -> void:
+	spawn_explosion_at(global_position, 1.6)
+	_play_camera_shake(death_shake_strength * 1.4)
+
+func _safe_wait(t: float) -> void:
+	await get_tree().create_timer(max(t, 0.01), false, true, true).timeout
+
+func _do_death_sequence() -> void:
+	if _is_dying: return
+	_is_dying = true
+
+	_start_emitters()
+
+	# burst while any death anim starts
+	spawn_explosions(max(1, explosion_count / 2))
+	await _safe_wait( min(0.4, 0.6) )
+
+	# main barrage + shake + debris
+	spawn_explosions(explosion_count)
+	_play_camera_shake()
+	spawn_debris(4)
+
+	# slow-mo beat
+	Engine.time_scale = clamp(slowmo_scale, 0.05, 1.0)
+	await _safe_wait(death_slowmo_time)
+	_restore_timescale_safely()
+
+	# breath
+	await _safe_wait(post_slowmo_pause)
+
+	# punch-in and out
+	_zoom_camera(camera_zoom_target, camera_zoom_time)
+	await _safe_wait(camera_zoom_time + 0.05)
+	_zoom_camera(4, camera_zoom_time)
+
+	# final pop
+	_play_final_boom()
+
+	# loot + score
+	_drop_loot()
+	_award_victory()
+
+	# fade out smoke then finish
+	_stop_emitters()
+	await _safe_wait(0.8)
