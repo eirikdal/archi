@@ -66,11 +66,13 @@ func _physics_process(delta: float) -> void:
 		global_position += _dir * speed * delta
 
 func _on_body_hit(body: Node) -> void:
-	_hit(body)
+	# Defer to exit the in/out signal lock
+	call_deferred("_hit", body)
 
 func _on_area_hit(a: Area2D) -> void:
 	if a == self: return
-	_hit(a)
+	# Defer to exit the in/out signal lock
+	call_deferred("_hit", a)
 
 func _hit(target: Node) -> void:
 	if not _alive: return
@@ -83,9 +85,10 @@ func _hit(target: Node) -> void:
 	if target is CharacterBody2D:
 		(target as CharacterBody2D).velocity += _dir * knockback
 
-	# Stop further collisions & visuals
-	col.disabled = true
-	monitoring = false
+	# Stop further collisions & visuals (defer physics-state changes)
+	col.set_deferred("disabled", true)
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
 	trail.visible = false
 
 	# Audio: stop flight, play impact

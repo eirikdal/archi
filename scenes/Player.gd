@@ -108,10 +108,10 @@ func start_slide() -> void:
 
 # --- helpers ---------------------------------------------------------------
 
-func _play(name: String, fallback: String = "") -> void:
-	var target := name
+func _play(bname: String, fallback: String = "") -> void:
+	var target := bname
 	if anim.sprite_frames and not anim.sprite_frames.has_animation(name):
-		target = fallback if (fallback != "" and anim.sprite_frames.has_animation(fallback)) else name
+		target = fallback if (fallback != "" and anim.sprite_frames.has_animation(fallback)) else bname
 	if anim.animation != target or not anim.is_playing():
 		anim.play(target)
 func _unhandled_input(event: InputEvent) -> void:
