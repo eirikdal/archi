@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
   <title>Owlboys – Sova</title>
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
     :root {
       --bg: #0d0e12;
       --fg: #d0d4d5;  /* frosty highlight from your palette */
@@ -20,19 +22,21 @@
       display: grid;
       gap: 12px;
       padding: 12px;
-      width: min(100vw, 100vh * 16 / 9);
-      max-height: 100vh;
+      width: min(100vw, 100dvh * 16 / 9);
+      max-height: 100dvh;
       box-sizing: border-box;
     }
 
-    .frame {
-      position: relative;
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 8px 24px rgba(0,0,0,.5);
-      aspect-ratio: 16 / 9;           /* your 320×180 native aspect */
-      overflow: hidden;
-    }
+.frame {
+  position: relative;
+  display: grid;               /* add */
+  place-items: center;         /* add */
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
 
     /* Godot canvas */
     #canvas {
@@ -127,7 +131,8 @@
     const canvas = document.getElementById("canvas");
     const loading = document.getElementById("loading");
     const meterFill = document.getElementById("meter-fill");
-
+  const NATIVE_W = 320, NATIVE_H = 180;
+  const frame = document.querySelector('.frame');
     const engine = new Engine({
       canvas,
       // Fit canvas into its parent (.frame); respects our 16:9 box
@@ -144,8 +149,25 @@
       executable: "index"
     });
 
+  function snapCanvasToIntegerScale() {
+    const fw = frame.clientWidth;
+    const fh = frame.clientHeight;
+    const scale = Math.max(1, Math.floor(Math.min(fw / NATIVE_W, fh / NATIVE_H)));
+
+    const cssW = NATIVE_W * scale;
+    const cssH = NATIVE_H * scale;
+
+    // Center the canvas with grid (from CSS), and force exact CSS pixel size
+    canvas.style.width  = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+  }
+  const ro = new ResizeObserver(snapCanvasToIntegerScale);
+  ro.observe(frame);
+  window.addEventListener('orientationchange', () => setTimeout(snapCanvasToIntegerScale, 50));
+
     engine.startGame().then(() => {
       loading.style.display = "none";
+      snapCanvasToIntegerScale();
       canvas.focus();
     }).catch(err => {
       console.error(err);
