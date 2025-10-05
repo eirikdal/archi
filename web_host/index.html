@@ -92,3 +92,81 @@
       <div class="controls">
         <button class="btn" id="btn-audio">🔊 Audio: On</button>
         <button class="btn" id="btn-fullscreen">⛶ Fullscreen</button>
+      </div>
+    </div>
+
+    <div class="frame">
+      <!-- Godot draws here -->
+      <canvas id="canvas" tabindex="0"></canvas>
+
+      <!-- Loading overlay -->
+      <div class="loading" id="loading">
+        <div class="meter"><div id="meter-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="hint">Pixel-perfect scaling, nearest-neighbour, 16:9 (320×180 base). Press F to toggle fullscreen.</div>
+  </div>
+
+  <!-- ⬇⬇⬇  BEGIN GODOT LOADER BLOCK  ⬇⬇⬇
+       Paste the loader <script> tags that your export generates (the ones that include
+       *loader.js* and create the Engine instance). Keep the same filenames. 
+       If you don’t have custom code there, you can use the minimal block below. -->
+
+  <!-- Example (Godot 4.5 default-style loader): -->
+  <script src="godot.loader.js"></script>
+  <script>
+    // If your export names are different (e.g. sova.loader.js), update the src above
+    // and the mainPack path below accordingly.
+    const canvas = document.getElementById("canvas");
+    const loading = document.getElementById("loading");
+    const meterFill = document.getElementById("meter-fill");
+
+    const engine = new Engine({
+      canvas,
+      // Fit canvas into its parent (.frame); respects our 16:9 box
+      canvasResizePolicy: Engine.CANVAS_RESIZE_POLICY_FIT,
+      // Show progress in our bar
+      onProgress: (current, total) => {
+        if (total > 0) {
+          const pct = Math.floor((current / total) * 100);
+          meterFill.style.width = pct + "%";
+        }
+      },
+      // Point to your main .pck (Godot will find the .wasm/.js alongside)
+      mainPack: "sova.pck",
+    });
+
+    engine.startGame().then(() => {
+      loading.style.display = "none";
+      canvas.focus();
+    }).catch(err => {
+      console.error(err);
+      loading.innerHTML = "<div style='color:#d66; font: 600 14px system-ui;'>Failed to load. Check console.</div>";
+    });
+
+    // UX helpers
+    const btnFS = document.getElementById("btn-fullscreen");
+    const btnAudio = document.getElementById("btn-audio");
+    let audioOn = true;
+
+    function toggleFullscreen() {
+      const el = canvas;
+      if (!document.fullscreenElement) el.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    btnFS.addEventListener("click", toggleFullscreen);
+    window.addEventListener("keydown", (e) => { if (e.key.toLowerCase() === "f") toggleFullscreen(); });
+
+    btnAudio.addEventListener("click", () => {
+      audioOn = !audioOn;
+      // Godot listens to the Web Audio context; suspend/resume is a safe global toggle.
+      if (engine.audioContext) {
+        if (audioOn) engine.audioContext.resume(); else engine.audioContext.suspend();
+      }
+      btnAudio.textContent = audioOn ? "🔊 Audio: On" : "🔈 Audio: Off";
+    });
+  </script>
+  <!-- ⬆⬆⬆  END GODOT LOADER BLOCK  ⬆⬆⬆ -->
+</body>
+</html>
