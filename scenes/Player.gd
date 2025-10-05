@@ -110,7 +110,7 @@ func start_slide() -> void:
 
 func _play(bname: String, fallback: String = "") -> void:
 	var target := bname
-	if anim.sprite_frames and not anim.sprite_frames.has_animation(name):
+	if anim.sprite_frames and not anim.sprite_frames.has_animation(bname):
 		target = fallback if (fallback != "" and anim.sprite_frames.has_animation(fallback)) else bname
 	if anim.animation != target or not anim.is_playing():
 		anim.play(target)
