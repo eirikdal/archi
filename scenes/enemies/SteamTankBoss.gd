@@ -190,7 +190,7 @@ func apply_damage(amount: int) -> void:
 		health.apply_damage(amount)
 
 # --- Effects driven by Health signals ---
-func _on_health_damaged(amount: int) -> void:
+func _on_health_damaged(_amount: int) -> void:
 	_flash_hit()
 	_emit_hit_fx(global_position + Vector2(0, -8))
 	_hit_stop()
@@ -208,7 +208,7 @@ func _update_damage_vfx_ratio(ratio: float) -> void:
 	smoke_m.emitting = (ratio <= 0.50)
 	smoke_h.emitting = (ratio <= 0.25)
 
-func _recoil(px: float = 2.0) -> void:
+func _recoil(_px: float = 2.0) -> void:
 	var dir := -1.0 if (velocity.x == 0.0) else -signf(velocity.x)
 	_knockback += Vector2(dir * 10.0, -10.0)
 
@@ -227,8 +227,8 @@ func _emit_hit_fx(at: Vector2) -> void:
 	sparks.restart()
 	puff.restart()
 
-func _hit_stop(duration: float = 0.06, scale: float = 0.1) -> void:
-	Engine.time_scale = 1.0 - clamp(scale, 0.0, 0.9)
+func _hit_stop(duration: float = 0.06, _scale: float = 0.1) -> void:
+	Engine.time_scale = 1.0 - clamp(_scale, 0.0, 0.9)
 	get_tree().create_timer(duration, false, true, true).timeout.connect(
 		func(): Engine.time_scale = 1.0
 	)
@@ -372,7 +372,7 @@ func _do_death_sequence() -> void:
 	_start_emitters()
 
 	# burst while any death anim starts
-	spawn_explosions(max(1, explosion_count / 2))
+	spawn_explosions(max(1, explosion_count / 2.0))
 	await _safe_wait( min(0.4, 0.6) )
 
 	# main barrage + shake + debris
