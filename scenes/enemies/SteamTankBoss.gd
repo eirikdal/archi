@@ -391,7 +391,7 @@ func _do_death_sequence() -> void:
 	# punch-in and out
 	_zoom_camera(camera_zoom_target, camera_zoom_time)
 	await _safe_wait(camera_zoom_time + 0.05)
-	_zoom_camera(4, camera_zoom_time)
+	_zoom_camera(3, camera_zoom_time)
 
 	# final pop
 	_play_final_boom()
